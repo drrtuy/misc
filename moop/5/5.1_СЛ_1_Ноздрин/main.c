@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <locale.h>
 #include <string.h>
+#ifdef linux
 #include <unistd.h>
-
+#endif
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "module.h"
 
 void fill(int a[], int size, int lb, int rb);
@@ -13,25 +17,25 @@ int main ()
 {
     int nArray[N_SIZE], mArray[M_SIZE], join[N_SIZE + M_SIZE];
 
-#ifdef _WIN32
-    setlocale(LC_CTYPE, "Russian");
-#endif
-#ifdef linux                                                                                                                                                             
-    setlocale(LC_ALL, "");
-#endif
-
     fill(nArray, N_SIZE, 1, N_SIZE * N_SIZE);
-    sleep(1);
+	
+#ifdef linux
+	sleep(1);
+#endif
+#ifdef _WIN32
+	Sleep(1000);
+#endif
+	
     fill(mArray, M_SIZE, 1, M_SIZE * M_SIZE);
-    printf("%ls\n", L"Элементы массива N");
+    printf("%ls\n", L"The elements of the first array");
     print(nArray, N_SIZE);
-    printf("%ls\n", L"Элементы массива M");
+    printf("%ls\n", L"The elements of the second array");
     print(mArray, M_SIZE);
 
     memset((void *) &join, -1, sizeof(join[0]) * (N_SIZE + M_SIZE));
 
     convert(nArray, N_SIZE, mArray, M_SIZE, join, N_SIZE + M_SIZE);
-    printf("%ls\n", L"Объединение массивов N и M");
+    printf("%ls\n", L"Cross of the arrays.");
     print(join, N_SIZE + M_SIZE);
 
     return 0;
