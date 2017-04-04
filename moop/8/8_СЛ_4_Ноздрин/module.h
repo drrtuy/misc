@@ -7,6 +7,12 @@
 using namespace std;
 
 #define BUF_LEN 256
+#ifdef _WIN32
+#define ENDL_OFFSET 2
+#endif
+#ifdef linux 
+#define ENDL_OFFSET 1
+#endif
 
 typedef struct {
     int row_number;
