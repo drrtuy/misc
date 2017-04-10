@@ -6,9 +6,10 @@
 int main()
 {
 
-//    checkAnd();
-//    checkNot();
+    checkAnd();
+    checkNot();
     checkXor();
+    checkOr();
 
     return 0;
 }
