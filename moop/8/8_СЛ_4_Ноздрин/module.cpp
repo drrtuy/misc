@@ -121,11 +121,12 @@ int rowNumber)
 
     for(iter = rowsDescr.begin(); iter != rowsDescr.begin()+rowNumber; iter++)
     {
-        pos += (iter->row_length + 1);
+        pos += (iter->row_length + ENDL_OFFSET);
     }
-
+	
     input.seekg(pos);
     input.getline(buf, BUF_LEN);
+	
     input.close();
 
     return true; 
