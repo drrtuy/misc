@@ -12,6 +12,10 @@
 
 using namespace std;
 
+//
+// Инициализируем экземпляр, не указывая значения.
+// in1 int длина строки для хранения цифр числа.
+//
 void Dec::Init(int length)
 {
     if (length < MAX_LENGTH)
@@ -25,6 +29,11 @@ void Dec::Init(int length)
     }
 }
 
+//
+// Инициализируем экземпляр, указывая значения.
+// in1 int длина строки для хранения цифр числа.
+// in2 const char* строка из цифр числа
+//
 void Dec::Create(int length, const char *digits)
 {
     if (length < MAX_LENGTH)
@@ -50,6 +59,10 @@ int Dec::getLength()
     return _length;
 }
 
+//
+// Ф-ия возвращает строку из цифр числа в превычной форме(слева старший разряд).
+// out char* строка
+//
 char *Dec::outPut()
 {
     char *result = new char[_length + 1];
@@ -67,19 +80,24 @@ char *Dec::outPut()
     return result;
 }
 
-
+//
+// Функция сравнивает длину двух Dec, возвращая ссылку на Dec с бОльшей длиной 
+// строки цифр числа
+// 
+// out Dec& ссылка на Dec
+//
 Dec Dec::_getLongest( const Dec &Operand)
 {
     if (this->_length > Operand._length)
         return *this;
-    return (Dec &) Operand;
+    return Operand;
 }
 
 Dec Dec::_getShortest( const Dec &Operand)
 {
     if (this->_length > Operand._length)
         return *this;
-    return (Dec &) Operand;
+    return Operand;
 }
 
 Dec Dec::Add(const Dec &Operand)
@@ -128,8 +146,43 @@ Dec Dec::Add(const Dec &Operand)
     return Result; 
     
 }
+Dec Dec::Dcr(const Dec &Operand)
+{
+
+    Dec Left = *this, Right = Operand, Result;
+    int intBuf = 0, ResultLength = 0;
+    char chBuf[2], transfer = Z;
+    char *resultDigits = new char[Left._length + 1];
+    
+    char *curCurLeft = Left._digits;
+    char *curCurRight = Right._digits;
+    char *curCurRes = resultDigits;
+
+    if (Left._length < Right._length)
+    {
+        Result.Create(1, "0");
+        return Result;
+    }
+
+    while(ResultLength < Left._length)
+    {
+        intBuf = (*curCurLeft - Z) - (*curCurRight - Z) - (transfer - Z);
+
+        if (ResultLength + 1 > Left._length)
+        {
+            
+        }
+        cout << "intBuf: " << intBuf << endl;
+        ResultLength++;
+    }
+   
+    
+
+
+    return Operand;
+}
+
 /*
-        Dec Dcr(const &Dec);
         Dec Mul(const &Dec);
         Dec Div(const &Dec);
         bool GrThen(const &Dec);

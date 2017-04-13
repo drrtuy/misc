@@ -8,7 +8,8 @@ using namespace std;
 int main ()
 {
 
-    checkAddition();
+    //checkAddition();
+    checkDecrement();
     
     return 0;
 }
