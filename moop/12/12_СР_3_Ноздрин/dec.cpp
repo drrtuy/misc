@@ -39,12 +39,20 @@ void Dec::Create(int length, const char *digits)
     if (length < MAX_LENGTH)
     {
         _digits = new char[length + 1];
-        strncpy(_digits, digits, length);
+        char *argDigCursor = (char *) digits;
+        char *intDigCursor = _digits;
+        int i = 0;
+        while(i++ < length)
+        {
+            *intDigCursor++ = *argDigCursor++;
+        }
+        //strncpy(_digits, digits, length);
         _digits[length] = '\0';
     } else {
         cout << "Too big Dec" << endl;
         abort();
     }
+
     _length = length;
     
 }
@@ -68,13 +76,13 @@ char *Dec::outPut()
     char *result = new char[_length + 1];
     result[_length] = '\0';
     char *resDigitsCur = result;
-    char *_digitsCur = _digits + _length - 1;
+    char *_digitsCur = _digits;
+    int i = 0;
 
-    while(_digitsCur != _digits - 1)
+    while(i++ < _length)
     {
-        *resDigitsCur = *_digitsCur;
+        *resDigitsCur++ = *_digitsCur++;
     //    cout << "src digit: " << *_digitsCur << " dst digit: " << *resDigitsCur << endl;
-        resDigitsCur++; _digitsCur--;
     }
 
     return result;
@@ -95,18 +103,47 @@ Dec Dec::_getLongest( const Dec &Operand)
 
 Dec Dec::_getShortest( const Dec &Operand)
 {
-    if (this->_length > Operand._length)
+    if (this->_length < Operand._length)
         return *this;
     return Operand;
 }
 
+//
+// Функция возвращает строку наоборот.
+// in1 char *
+// out1 char *
+//
+char *Dec::_reverseStr(const char *input)
+{
+    int length = strlen(input);
+    char *result = new char[length + 1];
+    result[length] = '\0'; 
+    char *resCursor = &result[length - 1];
+    char *inpCursor = (char *) input;
+    
+    while(resCursor != result - 1)
+    {
+        //cout << "inp Cur value" << *inpCursor << endl;
+        *resCursor-- = *inpCursor++;
+    }
+
+    return result;
+}
+
+//
+// Функция сложения двух Dec. Поразрядно складываем цифры чисел и цифру переноса. 
+// in1 const Dec& правый операнд сложения 
+// out Dec результат сложения
+//
 Dec Dec::Add(const Dec &Operand)
 {
-    Dec Longest = *this, Shortest = Operand, Result;
-    int intBuf = 0, ResultLength = 0;
+    Dec Longest = *this, Shortest = Operand, result;
+    int intBuf = 0, resultLength = 0;
     char chBuf[2], transfer = Z;
+    char curShortDigit = '0';
     char *resultDigits = new char[Longest._length + 2];
     
+    // Определяем число с бОльшим и меньшим количествами цифр.
     Longest = this->_getLongest(Operand);
     Shortest = this->_getShortest(Operand);
 
@@ -117,76 +154,149 @@ Dec Dec::Add(const Dec &Operand)
 
     //cout << " Shortest._length: " << Shortest._length << endl;
 
-    while(ResultLength < Shortest._length)
+    // Идём по цифрам числа с большим количеством цифр.
+    while(resultLength < Longest._length) 
     {
-        intBuf = *curCurShort + *curCurLong + transfer - 3 * Z;
+        // Если цифры "короткого" числа ещё не закончились, то берём цифру.
+        if((resultLength + 1) <= Shortest._length)
+        {
+            curShortDigit = *curCurShort;
+        } else 
+        {
+            curShortDigit = '0';
+        }
+
+        intBuf = curShortDigit + *curCurLong + transfer - 3 * Z;
+        // Представляем сумму как число.
         sprintf(chBuf, "%d", intBuf);
-        //cout << chBuf <<  endl;
+
+        // Есть ли перенос. 
         if(strlen(chBuf) > 1)
         {
-            *curCurRes = chBuf[1];
+            // Очередная цифра суммы
+            *curCurRes = chBuf[1];  
+            // Перенос
             transfer = chBuf[0];
         } else {
             *curCurRes = chBuf[0];
             transfer = Z;
         }
-        curCurShort++, curCurLong++, curCurRes++; ResultLength++;
+        curCurShort++, curCurLong++, curCurRes++; resultLength++;
     }
 
     if (transfer != Z)
     {
         *curCurRes = transfer;
-        ++ResultLength;
+        ++resultLength;
     }
 
-    resultDigits[ResultLength] = '\0';
+    resultDigits[resultLength] = '\0';
     //cout << "result digits: " << resultDigits;
-    Result.Create(ResultLength, resultDigits);
+    result.Create(resultLength, _reverseStr(resultDigits));
 
-    return Result; 
+    return result; 
     
 }
+
+//
+// Функция вычитания двух Dec. Поразрядно вычитаем цифры чисел, учитывая перенос. 
+// Возвращает Dec = 0, если уменьшаемое меньше вычитаемого.
+// this Dec уменьшаемое
+// in1 const Dec& вычитаемое 
+// out Dec разность
+//
 Dec Dec::Dcr(const Dec &Operand)
 {
 
-    Dec Left = *this, Right = Operand, Result;
-    int intBuf = 0, ResultLength = 0;
-    char chBuf[2], transfer = Z;
+    Dec Left = *this, Right = Operand, result;
+    int intBuf = 0, resultLength = 0;
+    char chBuf = '0', transfer = Z;
     char *resultDigits = new char[Left._length + 1];
     
     char *curCurLeft = Left._digits;
     char *curCurRight = Right._digits;
+    char curOpDigit = *curCurRight;
     char *curCurRes = resultDigits;
 
+    // Если длина строки цифр уменьшаемого < длины строки вычитаемого.
     if (Left._length < Right._length)
     {
-        Result.Create(1, "0");
-        return Result;
+        result.Create(1, "0");
+        return result;
     }
 
-    while(ResultLength < Left._length)
+    // Идём по строке цифр уменьшаемого.
+    while((resultLength + transfer - Z) < Left._length)
     {
-        intBuf = (*curCurLeft - Z) - (*curCurRight - Z) - (transfer - Z);
-
-        if (ResultLength + 1 > Left._length)
+        // Берём очередную цифру из вычитаемого, если ещё есть.
+        if((resultLength + 1) <= Right._length)
         {
-            
+            //cout << "get next digit" << endl;
+            curOpDigit = *curCurRight;
+        } else 
+        {
+            curOpDigit = '0';
         }
-        cout << "intBuf: " << intBuf << endl;
-        ResultLength++;
+
+        // Вычисляем значение цифры разности с помощью ASCII кодов цифр.
+        intBuf = (*curCurLeft - Z) - (curOpDigit - Z) - (transfer - Z);
+        //cout << "chBuf: " << chBuf << endl;
+        
+        // Если в буфере отрицательное число, и в уменьшаемом не осталось цифр.
+        if ((intBuf < 0) && (resultLength + 2 > Left._length))
+        {
+            result.Create(1, "0");
+            return result;
+        } else if (intBuf < 0) // Вычитаем и учитываем перенос на следующем шаге.
+        {
+            //cout << "set transfer base" << endl;
+            intBuf = 10 + intBuf;
+            transfer = '1';
+        } else
+        {
+            //cout << "zero transfer base" << endl;
+            transfer = '0';
+        }
+
+        sprintf(&chBuf, "%d", intBuf);
+        *curCurRes = chBuf;
+
+        //cout << "intBuf: " << intBuf << " resutLength: " << resultLength << endl;
+        resultLength++; curCurLeft++; curCurRight++; curCurRes++;
     }
-   
-    
+  
+    //cout << "resultDigits: " << resultDigits << " resutLength: " << resultLength << endl;
+    result.Create(resultLength, _reverseStr(resultDigits)); 
 
-
-    return Operand;
+    return result;
 }
 
+//
+// Функция сравнения двух чисел на равенство между собой: 
+// this == Operand
+// in1 правый операнд
+// out результат сравнения
+// 
+bool Dec::Eq(const Dec &Operand)
+{
+    return (_length == Operand._length)\
+ && (!strncmp(_digits, Operand._digits, _length));    
+}
+
+//
+// Отношение сравнения двух чисел между собой:
+// this > Operand
+// in1 правый операнд
+// out результат сравнения
+// 
+bool Dec::GrThen(const Dec &Operand)
+{
+    
+    return true;
+}
 /*
         Dec Mul(const &Dec);
         Dec Div(const &Dec);
-        bool GrThen(const &Dec);
         bool LsThen(const &Dec);
-        bool Eq(Const &Dec);
 */
 

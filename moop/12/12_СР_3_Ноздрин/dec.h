@@ -12,6 +12,7 @@ class Dec
         int _length;        
         Dec _getLongest(const Dec &Operand);
         Dec _getShortest(const Dec &Operand);
+        char *_reverseStr(const char *input);
     public:
         void Init(int length);
         void Create(int length, const char *digits);
