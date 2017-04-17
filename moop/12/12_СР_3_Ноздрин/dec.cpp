@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#ifdef linux
 #include <unistd.h>
+#endif
 #include <math.h>
 
 #include "dec.h"
@@ -397,7 +399,7 @@ bool Dec::GrThen(const Dec &Operand)
 bool Dec::LsThen(const Dec &Operand)
 {
     Dec diff = this->Dcr(Operand);
-    return ((*diff._digits == '0') and (diff._overflow));
+    return ((*diff._digits == '0') && (diff._overflow));
 }
 
 
