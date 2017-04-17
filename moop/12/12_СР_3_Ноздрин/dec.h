@@ -6,8 +6,7 @@
 
 class Dec
 {
-//    private:
-    public:
+    private:
         char * _digits;
         int _length;        
         bool _overflow;

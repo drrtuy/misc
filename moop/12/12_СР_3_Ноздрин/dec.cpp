@@ -40,7 +40,9 @@ void Dec::Create(int length, const char *digits)
 {
     if (length < MAX_LENGTH)
     {
+        char *reverse = this->_reverseStr(digits);
         _digits = new char[length + 1];
+        /*
         char *argDigCursor = (char *) digits;
         char *intDigCursor = _digits;
         int i = 0;
@@ -48,7 +50,8 @@ void Dec::Create(int length, const char *digits)
         {
             *intDigCursor++ = *argDigCursor++;
         }
-        //strncpy(_digits, digits, length);
+        */
+        strncpy(_digits, reverse, length);
         _digits[length] = '\0';
     } else {
         cout << "Too big Dec" << endl;
@@ -79,12 +82,12 @@ char *Dec::outPut()
     char *result = new char[_length + 1];
     result[_length] = '\0';
     char *resDigitsCur = result;
-    char *_digitsCur = _digits;
+    char *_digitsCur = &_digits[_length-1];
     int i = 0;
 
     while(i++ < _length)
     {
-        *resDigitsCur++ = *_digitsCur++;
+        *resDigitsCur++ = *_digitsCur--;
     //    cout << "src digit: " << *_digitsCur << " dst digit: " << *resDigitsCur << endl;
     }
 
@@ -140,7 +143,9 @@ char *Dec::_reverseStr(const char *input)
 //
 Dec Dec::Add(const Dec &Operand)
 {
-    Dec Longest = *this, Shortest = Operand, result;
+    Dec Longest = *this, Shortest = Operand;
+    Dec *resRef = new Dec;
+    Dec result = *resRef;
     int intBuf = 0, resultLength = 0;
     char chBuf[2], transfer = Z;
     char curShortDigit = '0';
@@ -155,10 +160,10 @@ Dec Dec::Add(const Dec &Operand)
     char *curCurShort = Shortest._digits;
     char *curCurRes = resultDigits;
 
-    cout << " Shortest._length: " << Shortest._length << endl;
+    //cout << " Shortest._length: " << Shortest._length << endl;
 
     // Идём по цифрам числа с большим количеством цифр.
-    while(resultLength < Longest._length) 
+    while(resultLength < Longest._length)
     {
         // Если цифры "короткого" числа ещё не закончились, то берём цифру.
         if((resultLength + 1) <= Shortest._length)
@@ -194,8 +199,8 @@ Dec Dec::Add(const Dec &Operand)
     }
 
     resultDigits[resultLength] = '\0';
-    cout << "result digits: " << resultDigits;
-    result.Create(resultLength, _reverseStr(resultDigits));
+    //cout << "result digits: " << resultDigits;
+    result.Create(resultLength, this->_reverseStr(resultDigits));
 
     result._overflow = false;
     return result; 
@@ -279,22 +284,22 @@ Dec Dec::Dcr(const Dec &Operand)
     }
   
     //cout << "resultDigits: " << resultDigits << " resutLength: " << resultLength << endl;
-    result.Create(resultLength, _reverseStr(resultDigits)); 
+    result.Create(resultLength, this->_reverseStr(resultDigits)); 
 
     result._overflow = false;
     return result;
 }
 
 //
-// Функция умножения двух Dec. Находим бОльшее число и складываем его n раз, 
-// где n - значение меньшего числа.
-// Возвращает Dec = 0, если уменьшаемое меньше вычитаемого.
+// Функция умножения двух Dec. Находим бОльшее число и умножаем его. 
 // in1 const Dec& правый операнд 
 // out Dec произведение
 //
 Dec Dec::Mul(const Dec &Operand)
 {
     Dec Big = *this, Small = Operand, result;
+    int buf;
+    char *strBuf = new char[MAX_LENGTH];
     int digit = 0, i = 0;
     
     if(Big.LsThen(Small))
@@ -303,26 +308,62 @@ Dec Dec::Mul(const Dec &Operand)
         Small = *this;
     }
 
-    char *SmallCursor = Small._digits;
-
     result.Create(1, "0");
 
     // Проходим по цифрам меньшего числа.
-    for(i = 0; i <= Small._length; i++)
+    for(i = 0; i < Small._length; i++)
     {
-        digit = (Small._digits[i] - Z) * (int)pow(BASE, i);
-        cout << "digit: " << digit << endl;
-        // Складываем 
-        while(digit-- > 0)
-        {
-            result = result.Add(Big);
-            cout << "int result: " << result.outPut() << endl;
-        } 
-        cout << "result: " << result.outPut() << endl;
+        digit += (Small._digits[i] - Z) * (int)pow(BASE, i);
+        //cout << "digit: " << digit << endl;
     }
+
+    sscanf(Big.outPut(), "%d", &buf);
+    //cout << "Big: " << Big.outPut() << endl;
+    memset(strBuf, '\0', MAX_LENGTH);
+    buf = buf * digit;
+    sprintf(strBuf, "%d", buf);  
+
+    result.Create(strlen(strBuf), strBuf);     
  
     return result;
 }
+
+//
+// Функция деления двух Dec. Если происходит деление на ноль, то обрываем программу. 
+// in1 const Dec& правый операнд 
+// out Dec неполное частное
+//
+Dec Dec::Div(const Dec &Operand)
+{
+    Dec Left = *this, Right = Operand, result;
+    int lBuf, rBuf;
+    char *strBuf = new char[MAX_LENGTH];
+    
+    result.Create(1, "0");
+
+    if(Left.LsThen(Right))
+    {
+        return result;
+    } else if (Right.Eq(result))
+    {
+        cout << "Div by 0" << endl;
+        abort();
+    }
+
+    sscanf(Left.outPut(), "%d", &lBuf);
+    sscanf(Right.outPut(), "%d", &rBuf);
+    //cout << "Big: " << Big.outPut() << endl;
+    memset(strBuf, '\0', MAX_LENGTH);
+    lBuf = lBuf / rBuf;
+    sprintf(strBuf, "%d", lBuf);  
+
+    result.Create(strlen(strBuf), strBuf);     
+ 
+    return result;
+}
+
+
+
 //
 // Функция сравнения двух чисел на равенство между собой: 
 // this == Operand
@@ -360,6 +401,3 @@ bool Dec::LsThen(const Dec &Operand)
 }
 
 
-/*
-        Dec Div(const &Dec);
-*/

@@ -71,7 +71,26 @@ void checkMul()
     cout << "Mul result " << C.outPut() << endl;
 }   
 
-void checkDiv();
+void checkDiv()
+{
+    cout << "############# / ############" << endl;
+    Dec A, B, C;
+    char left[] = "11";
+    char right[] = "100";
+    A.Create(strlen(left), left);
+    B.Create(strlen(right), right);
+    C = A.Div(B);
+    cout << "Divising " << left << " by " << right << endl;
+    cout << "Div result " << C.outPut() << endl;
+
+    char n_left[] = "11111";
+    char n_right[] = "25";
+    cout << "Divising " << n_left << " by " << n_right << endl;
+    A.Create(strlen(n_left), n_left);
+    B.Create(strlen(n_right), n_right);
+    C = A.Div(B);
+    cout << "Div result " << C.outPut() << endl;
+}   
 
 void checkEquality()
 {
