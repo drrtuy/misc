@@ -8,9 +8,10 @@ using namespace std;
 
 void checkAddition()
 {
+    cout << "############# + ############" << endl;
     Dec A, B, C;
-    char left[] = "0";
-    char right[] = "0";
+    char left[] = "1";
+    char right[] = "100";
     cout << "Summing " << left << " and " << right << " up." << endl;
     A.Create(strlen(left), left);
     B.Create(strlen(right), right);
@@ -29,9 +30,10 @@ void checkAddition()
 
 void checkDecrement()
 {
+    cout << "############# - ############" << endl;
     Dec A, B, C;
-    char left[] = "9";
-    char right[] = "11";
+    char left[] = "111";
+    char right[] = "222";
     A.Create(strlen(left), left);
     B.Create(strlen(right), right);
     C = A.Dcr(B);
@@ -48,8 +50,32 @@ void checkDecrement()
 
 }   
 
+void checkMul()
+{
+    cout << "############# * ############" << endl;
+    Dec A, B, C;
+    char left[] = "11";
+    char right[] = "100";
+    A.Create(strlen(left), left);
+    B.Create(strlen(right), right);
+    C = A.Mul(B);
+    cout << "Multiplying " << left << " by " << right << endl;
+    cout << "Mul result " << C.outPut() << endl;
+
+    char n_left[] = "11111";
+    char n_right[] = "0";
+    cout << "Multiplying " << n_left << " by " << n_right << endl;
+    A.Create(strlen(n_left), n_left);
+    B.Create(strlen(n_right), n_right);
+    C = A.Mul(B);
+    cout << "Mul result " << C.outPut() << endl;
+}   
+
+void checkDiv();
+
 void checkEquality()
 {
+    cout << "############# == ############" << endl;
     Dec A, B;
     char left[] = "111";
     char right[] = "222"; 
@@ -67,3 +93,50 @@ void checkEquality()
     cout << left << " == " << left << " is " << A.Eq(B) << endl;
 
 }
+
+void checkGrThen()
+{
+    cout << "############# > ############" << endl;
+    Dec A, B;
+    char left[] = "111";
+    char right[] = "222";
+    
+    A.Create(strlen(left), left);
+    B.Create(strlen(right), right);
+   
+    cout << "Comparing two numbers" << endl;
+    cout << left << " > " << right << " is " << A.GrThen(B) << endl;
+
+    char n_left[] = "222";
+    char n_right[] = "111";
+
+    A.Create(strlen(n_left), n_left);
+    B.Create(strlen(n_right), n_right);
+   
+    cout << "Comparing two numbers" << endl;
+    cout << n_left << " > " << n_right << " is " << A.GrThen(B) << endl;
+
+}
+void checkLessThen()
+{
+    cout << "############# < ############" << endl;
+    Dec A, B;
+    char left[] = "111";
+    char right[] = "222";
+    
+    A.Create(strlen(left), left);
+    B.Create(strlen(right), right);
+   
+    cout << "Comparing two numbers" << endl;
+    cout << left << " < " << right << " is " << A.LsThen(B) << endl;
+
+    char n_left[] = "222";
+    char n_right[] = "111";
+
+    A.Create(strlen(n_left), n_left);
+    B.Create(strlen(n_right), n_right);
+   
+    cout << "Comparing two numbers" << endl;
+    cout << n_left << " < " << n_right << " is " << A.LsThen(B) << endl;
+}
+

@@ -10,6 +10,7 @@ class Dec
     public:
         char * _digits;
         int _length;        
+        bool _overflow;
         Dec _getLongest(const Dec &Operand);
         Dec _getShortest(const Dec &Operand);
         char *_reverseStr(const char *input);
