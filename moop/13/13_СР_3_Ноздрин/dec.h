@@ -16,6 +16,8 @@ class Dec
         bool _overflow;
         Dec _getLongest(const Dec &Operand);
         Dec _getShortest(const Dec &Operand);
+        Dec *__getLongest(const Dec &Operand);
+        Dec *__getShortest(const Dec &Operand);
         char *_reverseStr(const char *input);
     public:
         Dec();

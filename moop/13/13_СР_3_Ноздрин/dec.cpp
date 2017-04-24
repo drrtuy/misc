@@ -50,11 +50,15 @@ Dec::Dec(int length, const char *digits)
 Dec::Dec(int number)
 {
     char *tmp = new char[MAX_LENGTH];
+    char *revTmp;
     sprintf(tmp, "%d", number); 
-    _length = strlen(tmp);
+    revTmp = this->_reverseStr(tmp);
+    _length = strlen(revTmp);
     _digits = new char[_length + 1];
-    strncpy(_digits, tmp, _length);
+    strncpy(_digits, revTmp, _length);
     _overflow = false;
+    delete tmp;
+    delete revTmp;
 }
 
 //
@@ -63,11 +67,11 @@ Dec::Dec(int number)
 //
 Dec::Dec(const Dec &Operand)
 {
-    _length = Operand.getLength();
+    _length = Operand._length;
     _digits = new char[_length + 1];
     strncpy(_digits, Operand._digits, _length);
     _digits[_length] = '\0'; 
-    _overflow = Operand.getOverflow();
+    _overflow = Operand._overflow;
 }
 
 //
@@ -75,7 +79,8 @@ Dec::Dec(const Dec &Operand)
 //
 Dec::~Dec()
 {
-    delete _digits;
+    if (_digits != NULL)
+        delete _digits;
     _digits = NULL;
     _length = 0;
     _overflow = false;
@@ -178,6 +183,19 @@ Dec Dec::_getShortest( const Dec &Operand)
     return Operand;
 }
 
+Dec *Dec::__getLongest( const Dec &Operand)                                                                                                                                                     
+{
+    if (this->_length > Operand._length)
+        return this;
+    return (Dec *) &Operand;
+}
+
+Dec *Dec::__getShortest( const Dec &Operand)                                                    {
+    if (this->_length < Operand._length)
+        return this;
+    return (Dec *) &Operand;
+}
+
 //
 // Функция возвращает строку наоборот.
 // in1 char *
@@ -205,32 +223,31 @@ char *Dec::_reverseStr(const char *input)
 // in1 const Dec& правый операнд сложения 
 // out Dec результат сложения
 //
-Dec Dec::Add(const Dec &Operand)
+Dec *Dec::Add(const Dec &Operand)
 {
-    Dec Longest = *this, Shortest = Operand;
-    Dec *resRef = new Dec;
-    Dec result = *resRef;
+    Dec *Longest = this, *Shortest = (Dec *) &Operand;
     int intBuf = 0, resultLength = 0;
     char chBuf[2], transfer = Z;
     char curShortDigit = '0';
-    char *resultDigits = new char[Longest._length + 2];
+    char *resultDigits = new char[Longest->_length + 2];
     
     // Определяем число с бОльшим и меньшим количествами цифр.
-    Longest = this->_getLongest(Operand);
-    Shortest = this->_getShortest(Operand);
+    Longest = this->__getLongest(Operand);
+    Shortest = this->__getShortest(Operand);
 
 
-    char *curCurLong = Longest._digits;
-    char *curCurShort = Shortest._digits;
+    char *curCurLong = Longest->_digits;
+    char *curCurShort = Shortest->_digits;
     char *curCurRes = resultDigits;
 
-    //cout << " Shortest._length: " << Shortest._length << endl;
+    //cout << " Longest->_digits: " << Shortest->_digits << endl;
+    //cout << " Shortest->_digits: " << Longest->_digits << endl;
 
     // Идём по цифрам числа с большим количеством цифр.
-    while(resultLength < Longest._length)
+    while(resultLength < Longest->_length)
     {
         // Если цифры "короткого" числа ещё не закончились, то берём цифру.
-        if((resultLength + 1) <= Shortest._length)
+        if((resultLength + 1) <= Shortest->_length)
         {
             curShortDigit = *curCurShort;
         } else 
@@ -263,12 +280,15 @@ Dec Dec::Add(const Dec &Operand)
     }
 
     resultDigits[resultLength] = '\0';
-    //cout << "result digits: " << resultDigits;
-    result.Create(resultLength, this->_reverseStr(resultDigits));
+    cout << "result digits: " << resultDigits << endl;
 
-    result._overflow = false;
-    return result; 
-    
+    Dec *result = new Dec(resultLength, this->_reverseStr(resultDigits));
+    //Dec *result = new Dec();
+    result->_overflow = false;
+
+    delete resultDigits;
+
+    return result;
 }
 
 //
