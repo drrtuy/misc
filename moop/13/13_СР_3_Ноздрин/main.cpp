@@ -10,13 +10,15 @@ int main ()
 {
 
     cout << " Dec class operations. " << endl;
+
     checkAddition();
+/*
     checkDecrement();
     checkEquality();
     checkGrThen();
     checkLessThen();
     checkMul();
     checkDiv();
-
+*/
     return 0;
 }

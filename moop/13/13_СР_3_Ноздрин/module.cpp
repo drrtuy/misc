@@ -25,7 +25,6 @@ void checkAddition()
     B.Create(strlen(n_right), n_right);
     C = A.Add(B);
     cout << "add result " << C.outPut() << endl;
-
 }   
 
 void checkDecrement()

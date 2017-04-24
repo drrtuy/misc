@@ -9,11 +9,77 @@
 
 #include "dec.h"
 
-//private:
-//    char * _digits;
-//    int _length;        
-
 using namespace std;
+
+//
+// Def конструктор
+// 
+Dec::Dec()
+{
+    _digits = NULL;
+    _length = 0;
+    _overflow = false;
+}
+
+//
+// Конструктор инициализации
+// in1 int длина строки цифр
+// in2 строка цифр
+//
+Dec::Dec(int length, const char *digits)
+{
+    if (length < MAX_LENGTH)
+    {
+        char *reverse = this->_reverseStr(digits);
+        _digits = new char[length + 1];
+        strncpy(_digits, reverse, length);
+        _digits[length] = '\0';
+    } else {
+        cout << "Too big Dec" << endl;
+        abort();
+    }
+
+    _length = length;
+    _overflow = false;
+}
+
+//
+// Конструктор инициализации
+// in1 int число
+//
+Dec::Dec(int number)
+{
+    char *tmp = new char[MAX_LENGTH];
+    sprintf(tmp, "%d", number); 
+    _length = strlen(tmp);
+    _digits = new char[_length + 1];
+    strncpy(_digits, tmp, _length);
+    _overflow = false;
+}
+
+//
+// Конструктор копирования
+// in1 &Dec
+//
+Dec::Dec(const Dec &Operand)
+{
+    _length = Operand.getLength();
+    _digits = new char[_length + 1];
+    strncpy(_digits, Operand._digits, _length);
+    _digits[_length] = '\0'; 
+    _overflow = Operand.getOverflow();
+}
+
+//
+// Деструктор. Просто деструктор
+//
+Dec::~Dec()
+{
+    delete _digits;
+    _digits = NULL;
+    _length = 0;
+    _overflow = false;
+}
 
 //
 // Инициализируем экземпляр, не указывая значения.
@@ -44,15 +110,6 @@ void Dec::Create(int length, const char *digits)
     {
         char *reverse = this->_reverseStr(digits);
         _digits = new char[length + 1];
-        /*
-        char *argDigCursor = (char *) digits;
-        char *intDigCursor = _digits;
-        int i = 0;
-        while(i++ < length)
-        {
-            *intDigCursor++ = *argDigCursor++;
-        }
-        */
         strncpy(_digits, reverse, length);
         _digits[length] = '\0';
     } else {
@@ -73,6 +130,11 @@ char *Dec::getDigits()
 int Dec::getLength()
 {
     return _length;
+}
+
+bool Dec::getOverflow()
+{
+    return _overflow;
 }
 
 //
