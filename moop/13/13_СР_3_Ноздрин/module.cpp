@@ -54,109 +54,102 @@ void checkDecrement()
 void checkMul()
 {
     cout << "############# * ############" << endl;
-    Dec A, B, C;
+    Dec *A = new Dec(11);
+    Dec *B = new Dec(100);
+    Dec *C;
     char left[] = "11";
     char right[] = "100";
-    A.Create(strlen(left), left);
-    B.Create(strlen(right), right);
-    C = A.Mul(B);
+    C = A->Mul(*B);
     cout << "Multiplying " << left << " by " << right << endl;
-    cout << "Mul result " << C.outPut() << endl;
+    cout << "Mul result " << C->outPut() << endl;
 
     char n_left[] = "11111";
     char n_right[] = "0";
     cout << "Multiplying " << n_left << " by " << n_right << endl;
-    A.Create(strlen(n_left), n_left);
-    B.Create(strlen(n_right), n_right);
-    C = A.Mul(B);
-    cout << "Mul result " << C.outPut() << endl;
+    A->Create(strlen(n_left), n_left);
+    B->Create(strlen(n_right), n_right);
+    C = A->Mul(*B);
+    cout << "Mul result " << C->outPut() << endl;
 }   
 
 void checkDiv()
 {
     cout << "############# / ############" << endl;
-    Dec A, B, C;
+    Dec *A = new Dec(11);
+    Dec *B = new Dec(100);
+    Dec *C;
     char left[] = "11";
     char right[] = "100";
-    A.Create(strlen(left), left);
-    B.Create(strlen(right), right);
-    C = A.Div(B);
+    C = A->Div(*B);
     cout << "Divising " << left << " by " << right << endl;
-    cout << "Div result " << C.outPut() << endl;
+    cout << "Div result " << C->outPut() << endl;
 
     char n_left[] = "11111";
     char n_right[] = "25";
     cout << "Divising " << n_left << " by " << n_right << endl;
-    A.Create(strlen(n_left), n_left);
-    B.Create(strlen(n_right), n_right);
-    C = A.Div(B);
-    cout << "Div result " << C.outPut() << endl;
+    A->Create(strlen(n_left), n_left);
+    B->Create(strlen(n_right), n_right);
+    C = A->Div(*B);
+    cout << "Div result " << C->outPut() << endl;
 }   
 
 void checkEquality()
 {
     cout << "############# == ############" << endl;
-    Dec A, B;
+    Dec *A = new Dec(111);
+    Dec *B = new Dec(222);
     char left[] = "111";
     char right[] = "222"; 
     
-    A.Create(strlen(left), left);
-    B.Create(strlen(right), right);
+    cout << "Comparing two numbers" << endl; 
+    cout << left << " == " << right << " is " << A->Eq(*B) << endl;
+
+    A->Create(strlen(left), left);
+    B->Create(strlen(left), left);
    
     cout << "Comparing two numbers" << endl; 
-    cout << left << " == " << right << " is " << A.Eq(B) << endl;
-
-    A.Create(strlen(left), left);
-    B.Create(strlen(left), left);
-   
-    cout << "Comparing two numbers" << endl; 
-    cout << left << " == " << left << " is " << A.Eq(B) << endl;
-
+    cout << left << " == " << left << " is " << A->Eq(*B) << endl;
 }
 
 void checkGrThen()
 {
     cout << "############# > ############" << endl;
-    Dec A, B;
+    Dec *A = new Dec(111);
+    Dec *B = new Dec(222);
     char left[] = "111";
     char right[] = "222";
     
-    A.Create(strlen(left), left);
-    B.Create(strlen(right), right);
-   
     cout << "Comparing two numbers" << endl;
-    cout << left << " > " << right << " is " << A.GrThen(B) << endl;
+    cout << left << " > " << right << " is " << A->GrThen(*B) << endl;
 
     char n_left[] = "222";
     char n_right[] = "111";
 
-    A.Create(strlen(n_left), n_left);
-    B.Create(strlen(n_right), n_right);
+    A->Create(strlen(n_left), n_left);
+    B->Create(strlen(n_right), n_right);
    
     cout << "Comparing two numbers" << endl;
-    cout << n_left << " > " << n_right << " is " << A.GrThen(B) << endl;
+    cout << n_left << " > " << n_right << " is " << A->GrThen(*B) << endl;
 
 }
 void checkLessThen()
 {
     cout << "############# < ############" << endl;
-    Dec A, B;
+    Dec *A = new Dec(111);
+    Dec *B = new Dec(222);
     char left[] = "111";
     char right[] = "222";
     
-    A.Create(strlen(left), left);
-    B.Create(strlen(right), right);
-   
     cout << "Comparing two numbers" << endl;
-    cout << left << " < " << right << " is " << A.LsThen(B) << endl;
+    cout << left << " < " << right << " is " << A->LsThen(*B) << endl;
 
     char n_left[] = "222";
     char n_right[] = "111";
 
-    A.Create(strlen(n_left), n_left);
-    B.Create(strlen(n_right), n_right);
+    A->Create(strlen(n_left), n_left);
+    B->Create(strlen(n_right), n_right);
    
     cout << "Comparing two numbers" << endl;
-    cout << n_left << " < " << n_right << " is " << A.LsThen(B) << endl;
+    cout << n_left << " < " << n_right << " is " << A->LsThen(*B) << endl;
 }
 

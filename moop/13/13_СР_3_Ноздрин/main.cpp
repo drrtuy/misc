@@ -13,12 +13,11 @@ int main ()
 
     checkAddition();
     checkDecrement();
-/*
     checkEquality();
     checkGrThen();
     checkLessThen();
     checkMul();
     checkDiv();
-*/
+
     return 0;
 }

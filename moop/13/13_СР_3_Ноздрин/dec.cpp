@@ -381,36 +381,39 @@ Dec *Dec::Dcr(const Dec &Operand)
 // in1 const Dec& правый операнд 
 // out Dec произведение
 //
-Dec Dec::Mul(const Dec &Operand)
+Dec *Dec::Mul(const Dec &Operand)
 {
-    Dec Big = *this, Small = Operand, result;
+    Dec *Big = this, *Small = (Dec *) &Operand;
     int buf;
     char *strBuf = new char[MAX_LENGTH];
     int digit = 0, i = 0;
     
-    if(Big.LsThen(Small))
+    if(Big->LsThen(*Small))
     {
-        Big = Operand;
-        Small = *this;
+        Big = (Dec *) &Operand;
+        Small = this;
     }
 
-    result.Create(1, "0");
-
     // Проходим по цифрам меньшего числа.
-    for(i = 0; i < Small._length; i++)
+    for(i = 0; i < Small->_length; i++)
     {
-        digit += (Small._digits[i] - Z) * (int)pow(BASE, i);
+        digit += (Small->_digits[i] - Z) * (int)pow(BASE, i);
         //cout << "digit: " << digit << endl;
         //result = result.Add(Big);
     }
-    sscanf(Big.outPut(), "%d", &buf);
+    sscanf(Big->outPut(), "%d", &buf);
+    //cout << "Dec::Mul() buf: " << buf << endl;
     //cout << "Big: " << result.outPut() << endl;
     memset(strBuf, '\0', MAX_LENGTH);
     buf = buf * digit;
     sprintf(strBuf, "%d", buf);  
 
-    result.Create(strlen(strBuf), strBuf);     
- 
+    //cout << "Dec::Mul() strBuf: " << strBuf << endl;
+
+    Dec *result = new Dec(strlen(strBuf), strBuf);     
+
+    delete strBuf; 
+
     return result;
 }
 
@@ -419,31 +422,31 @@ Dec Dec::Mul(const Dec &Operand)
 // in1 const Dec& правый операнд 
 // out Dec неполное частное
 //
-Dec Dec::Div(const Dec &Operand)
+Dec *Dec::Div(const Dec &Operand)
 {
-    Dec Left = *this, Right = Operand, result;
+    Dec *Left = this, *Right = (Dec *) &Operand;
     int lBuf, rBuf;
     char *strBuf = new char[MAX_LENGTH];
-    
-    result.Create(1, "0");
 
-    if(Left.LsThen(Right))
+    if(Left->LsThen(*Right))
     {
+        Dec *result = new Dec(0);
         return result;
-    } else if (Right.Eq(result))
+    } else if (*Right->_digits == '0')
     {
-        cout << "Div by 0" << endl;
+        cout << "Dec::Div() Div by 0" << endl;
         abort();
     }
 
-    sscanf(Left.outPut(), "%d", &lBuf);
-    sscanf(Right.outPut(), "%d", &rBuf);
+    sscanf(Left->outPut(), "%d", &lBuf);
+    sscanf(Right->outPut(), "%d", &rBuf);
     //cout << "Big: " << Big.outPut() << endl;
     memset(strBuf, '\0', MAX_LENGTH);
     lBuf = lBuf / rBuf;
     sprintf(strBuf, "%d", lBuf);  
 
-    result.Create(strlen(strBuf), strBuf);     
+    Dec *result = new Dec(strlen(strBuf), strBuf);     
+    delete strBuf; 
  
     return result;
 }
