@@ -298,32 +298,32 @@ Dec *Dec::Add(const Dec &Operand)
 // in1 const Dec& вычитаемое 
 // out Dec разность
 //
-Dec Dec::Dcr(const Dec &Operand)
+Dec *Dec::Dcr(const Dec &Operand)
 {
 
-    Dec Left = *this, Right = Operand, result;
+    Dec *Left = this, *Right = (Dec *) &Operand;
     int intBuf = 0, resultLength = 0;
     char chBuf = '0', transfer = Z;
-    char *resultDigits = new char[Left._length + 1];
+    char *resultDigits = new char[Left->_length + 1];
     
-    char *curCurLeft = Left._digits;
-    char *curCurRight = Right._digits;
+    char *curCurLeft = Left->_digits;
+    char *curCurRight = Right->_digits;
     char curOpDigit = *curCurRight;
     char *curCurRes = resultDigits;
 
     // Если длина строки цифр уменьшаемого < длины строки вычитаемого.
-    if (Left._length < Right._length)
+    if (Left->_length < Right->_length)
     {
-        result.Create(1, "0");
-        result._overflow = true;
+        Dec *result = new Dec(0);
+        result->_overflow = true;
         return result;
     }
 
     // Идём по строке цифр уменьшаемого.
-    while((resultLength + transfer - Z) < Left._length)
+    while((resultLength + transfer - Z) < Left->_length)
     {
         // Берём очередную цифру из вычитаемого, если ещё есть.
-        if((resultLength + 1) <= Right._length)
+        if((resultLength + 1) <= Right->_length)
         {
             //cout << "get next digit" << endl;
             curOpDigit = *curCurRight;
@@ -337,10 +337,10 @@ Dec Dec::Dcr(const Dec &Operand)
         //cout << "intBuf: " << intBuf << endl;
         
         // Если в буфере отрицательное число, и в уменьшаемом не осталось цифр.
-        if ((intBuf < 0) && (resultLength + 2 > Left._length))
+        if ((intBuf < 0) && (resultLength + 2 > Left->_length))
         {
-            result.Create(1, "0");
-            result._overflow = true;
+            Dec *result = new Dec(0);
+            result->_overflow = true;
             return result;
         } else if (intBuf < 0) // Вычитаем и учитываем перенос на следующем шаге.
         {
@@ -362,15 +362,17 @@ Dec Dec::Dcr(const Dec &Operand)
 
     if(transfer != Z) 
     {
-        result.Create(1, "0");
-        result._overflow = true;
+        Dec *result = new Dec(0);
+        result->_overflow = true;
         return result;
     }
   
     //cout << "resultDigits: " << resultDigits << " resutLength: " << resultLength << endl;
-    result.Create(resultLength, this->_reverseStr(resultDigits)); 
+    Dec *result = new Dec(resultLength, this->_reverseStr(resultDigits));
+    result->_overflow = false;
 
-    result._overflow = false;
+    delete resultDigits;
+
     return result;
 }
 
@@ -468,8 +470,8 @@ bool Dec::Eq(const Dec &Operand)
 // 
 bool Dec::GrThen(const Dec &Operand)
 {
-    Dec diff = this->Dcr(Operand);
-    return (*diff._digits != '0');
+    Dec *diff = this->Dcr(Operand);
+    return (*diff->_digits != '0');
 }
 
 //
@@ -480,8 +482,8 @@ bool Dec::GrThen(const Dec &Operand)
 // 
 bool Dec::LsThen(const Dec &Operand)
 {
-    Dec diff = this->Dcr(Operand);
-    return ((*diff._digits == '0') && (diff._overflow));
+    Dec *diff = this->Dcr(Operand);
+    return ((*diff->_digits == '0') && (diff->_overflow));
 }
 
 

@@ -32,7 +32,7 @@ class Dec
         int getLength();
         char *outPut();
         Dec *Add(const Dec &Operand);
-        Dec Dcr(const Dec &Operand);
+        Dec *Dcr(const Dec &Operand);
         Dec Mul(const Dec &Operand);
         Dec Div(const Dec &Operand);
         bool GrThen(const Dec &Operand);

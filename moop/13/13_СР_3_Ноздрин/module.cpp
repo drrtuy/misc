@@ -32,22 +32,22 @@ void checkAddition()
 void checkDecrement()
 {
     cout << "############# - ############" << endl;
-    Dec A, B, C;
+    Dec *A = new Dec(111);
+    Dec *B = new Dec(222);
+    Dec *C;
     char left[] = "111";
     char right[] = "222";
-    A.Create(strlen(left), left);
-    B.Create(strlen(right), right);
-    C = A.Dcr(B);
+    C = A->Dcr(*B);
     cout << "Decrementing " << left << " by " << right << endl;
-    cout << "decrement result " << C.outPut() << endl;
+    cout << "decrement result " << C->outPut() << endl;
 
     char n_left[] = "11111";
     char n_right[] = "99";
     cout << "Decrementing " << n_left << " by " << n_right << endl;
-    A.Create(strlen(n_left), n_left);
-    B.Create(strlen(n_right), n_right);
-    C = A.Dcr(B);
-    cout << "decrement result " << C.outPut() << endl;
+    A->Create(strlen(n_left), n_left);
+    B->Create(strlen(n_right), n_right);
+    C = A->Dcr(*B);
+    cout << "decrement result " << C->outPut() << endl;
 
 }   
 
