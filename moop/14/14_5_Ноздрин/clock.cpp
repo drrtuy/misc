@@ -72,11 +72,11 @@ void Clock::getDiff(const Clock &endCl)
     Clock *beginCl = this;
     signed int minDiff = 0;
     signed int hoursDiff = 0;
-    minDiff = beginCl->_minutes - endCl._minutes;
-    hoursDiff = beginCl->_hours - endCl._hours;
+    minDiff = endCl._minutes - beginCl->_minutes;
+    hoursDiff = endCl._hours - beginCl->_hours;
     try
     {
-        if((minDiff < 0) || (hoursDiff <0))
+        if((hoursDiff <0) || ((hoursDiff == 0) && (minDiff < 0)))
             throw TMyException(MINNEGATIV, minDiff);
         cout << "Call duration in mins: " << hoursDiff * 60 + minDiff << endl;
     }
