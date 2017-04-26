@@ -46,11 +46,11 @@ Clock::Clock(int minutes, int hours)
     { 
         if((except._exceptionCode == MINNEGATIV) || (except._exceptionCode == MINOVER))
         {
-            cout << "Negative min value was entered: " << except._wrongValue << endl;
+            cout << "Minutes value is negative or greater then 60: " << except._wrongValue << endl;
         }
         else
         {
-            cout << "Negative hours value was entered: " << except._wrongValue << endl;
+            cout << "Hours value is negative or greater then 24: " << except._wrongValue << endl;
         }
         _failed = true;
     }

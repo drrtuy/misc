@@ -1,64 +1,49 @@
 #include <iostream>
 
 #include "module.h"
-#include "clock.h"
+#include "date.h"
 
 using namespace std;
 
 //
 // Создание объекта ручным вводом.
 //
-Clock *getInput()
+Date *getInput()
 {
-    int min, hours;
+    int day, month;
 
-    cout << "Enter the hours value: " << endl;
-    cin >> hours;
+    cout << "Day number is: " << endl;
+    cin >> day;
 
-    cout << "Enter the min value: " << endl;
-    cin >> min;
+    cout << "Month number is: " << endl;
+    cin >> month;
 
-    Clock *result = new Clock(min, hours);
+    Date *result = new Date(day, month);
     return result;
 }
 
 //
 // Проверка срабатывания exception на разных наборах данных.
-// in1 *Clock
+// in1 *Date
 //
-void testHoursMinsDomains()
+void testDateDomain()
 {
-    int tstHoursArr[] = {0, -1, 1};
-    int tstMinsArr[] = {0, -1, 1};
-    Clock *cl;
-
-    /*
-    for(unsigned int it = 0; it < 3; it++)
-    {
-        for(unsigned int i = 0; i < 3; i++)
-        {
-            cl = new Clock(tstMinsArr[it], tstHoursArr[i]);
-            if(cl->_failed)
-                continue;
-            cout << "Clock hours: " << cl->_hours << endl;
-            cout << "Clock mins: " << cl->_minutes << endl;
-        }
-    }
-    */
-
-    Clock *cl1 = new Clock(34, 1);
-    Clock *cl2 = new Clock(33, 24);
+    Date *date1 = new Date(23, 2);
+    Date *date2 = new Date(8, 3);
 	
-	cout << "Call starts at: " << cl1->_hours << " " << cl1->_minutes << endl;
-	cout << "Call finished at: " << cl2->_hours << " " << cl2->_minutes << endl;
-    cl1->getDiff((const Clock) *cl2);
+	cout << "Date format is month-day." << endl;
+	cout << "The period starts at: " << date1->_month << "-" << date1->_day << endl;
+	cout << "The period finishes at: " << date2->_month << "-" << date2->_day << endl;
+    date1->getDiff((const Date) *date2);
 	
-	delete cl1; delete cl2;
+	delete date1; delete date2;
 	
-	cl2 = new Clock(34, 3);
-    cl1 = new Clock(33, 4);
+	date1 = new Date(20, 2);
+    date2 = new Date(1, 1);
 	
-	cout << "Call starts at: " << cl1->_hours << " " << cl1->_minutes << endl;
-	cout << "Call finished at: " << cl2->_hours << " " << cl2->_minutes << endl;
-    cl1->getDiff((const Clock) *cl2);    
+	cout << "The period starts at: " << date1->_month << "-" << date1->_day << endl;
+	cout << "The period finishes at: " << date2->_month << "-" << date2->_day << endl;
+    date1->getDiff((const Date) *date2);
+	
+	delete date1; delete date2;
 }

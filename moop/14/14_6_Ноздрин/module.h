@@ -2,10 +2,10 @@
 
 #define HMODULE
 
-#include "date.h"
+#include "clock.h"
 
 
-enum exCodes {  DAYNEG, MONTHNEG, DAYOVER, MONTHOVER };
+enum exCodes {  HOURNEGATIV, MINNEGATIV, HOUROVER, MINOVER };
 
 struct TMyException
 {
@@ -19,7 +19,7 @@ struct TMyException
     };
 };
 
-Date *getInput();
-void testDateDomain();
+Clock *getInput();
+void testHoursMinsDomains();
 
 #endif

@@ -1,24 +1,30 @@
 #include <iostream>
 
 #include "module.h"
-#include "clock.h"
+#include "date.h"
 
 using namespace std;
 
 int main()
 {
-    cout << "Clock input checker." << endl;
+    cout << "Date input checker." << endl;
 
-    testHoursMinsDomains();
+    testDateDomain();
 
     while(true)
     {
-        Clock *cl = getInput();
-        if(cl->_failed)
+		cout << "Enter two dates to calculate the period length." << endl;
+		cout << "Period starts at: " << endl;
+        Date *date1 = getInput();
+		cout << "Period finishes at: " << endl;
+		Date *date2 = getInput();
+        if((date1->_failed) || (date2->_failed))
         {
+			delete date1; delete date2;
             continue;
         }
-        delete cl;
+		date1->getDiff(*date2);
+        delete date1; delete date2;
     }
 
     return 0;
