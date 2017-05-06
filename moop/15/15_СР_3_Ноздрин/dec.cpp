@@ -164,6 +164,27 @@ char *Dec::outPut()
 }
 
 //
+// Ф-ия возвращает строку из цифр числа в превычной форме(слева старший разряд).
+// out char* строка
+//
+std::ostream &operator<<(ostream& stream, const Dec &Operand)
+{
+    char *result = new char[Operand._length + 1];
+    result[Operand._length] = '\0';
+    char *resDigitsCur = result;
+    char *_digitsCur = &Operand._digits[Operand._length-1];
+    int i = 0;
+
+    while(i++ < Operand._length)
+    {
+        *resDigitsCur++ = *_digitsCur--;
+    }
+
+    stream << result;
+    return stream;
+}
+
+//
 // Функция сравнивает длину двух Dec, возвращая ссылку на Dec с бОльшей длиной 
 // строки цифр числа
 // 
@@ -457,7 +478,7 @@ Dec *Dec::operator/(const Dec &Operand)
 // in1 правый операнд
 // out результат сравнения
 // 
-bool Dec::operator^(const Dec &Operand)
+bool Dec::operator==(const Dec &Operand)
 {
     return (_length == Operand._length)\
  && (!strncmp(_digits, Operand._digits, _length));    

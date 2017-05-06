@@ -16,7 +16,7 @@ void checkAddition()
     char right[] = "100";
     cout << "Summing " << left << " and " << right << " up." << endl;
     C = *A + *B;
-    cout << "add result " << C->outPut() << endl;
+    cout << "add result " << *C << endl;
 
     char n_left[] = "11";
     char n_right[] = "11111";
@@ -24,7 +24,7 @@ void checkAddition()
     A->Create(strlen(n_left), n_left);
     B->Create(strlen(n_right), n_right);
     C = *A + *B;
-    cout << "add result " << C->outPut() << endl;
+    cout << "add result " << *C << endl;
 }   
 
 void checkDecrement()
@@ -37,7 +37,7 @@ void checkDecrement()
     char right[] = "222";
     C = *A - *B;
     cout << "Decrementing " << left << " by " << right << endl;
-    cout << "decrement result " << C->outPut() << endl;
+    cout << "decrement result " << *C << endl;
 
     char n_left[] = "11111";
     char n_right[] = "99";
@@ -45,7 +45,7 @@ void checkDecrement()
     A->Create(strlen(n_left), n_left);
     B->Create(strlen(n_right), n_right);
     C = *A - *B;
-    cout << "decrement result " << C->outPut() << endl;
+    cout << "decrement result " << *C << endl;
 
 }   
 
@@ -59,7 +59,7 @@ void checkMul()
     char right[] = "100";
     C = *A * *B;
     cout << "Multiplying " << left << " by " << right << endl;
-    cout << "Mul result " << C->outPut() << endl;
+    cout << "Mul result " << *C << endl;
 
     char n_left[] = "11111";
     char n_right[] = "0";
@@ -67,7 +67,7 @@ void checkMul()
     A->Create(strlen(n_left), n_left);
     B->Create(strlen(n_right), n_right);
     C = *A * *B;
-    cout << "Mul result " << C->outPut() << endl;
+    cout << "Mul result " << *C << endl;
 }   
 
 void checkDiv()
@@ -80,7 +80,7 @@ void checkDiv()
     char right[] = "100";
     C = *A / *B;
     cout << "Divising " << left << " by " << right << endl;
-    cout << "Div result " << C->outPut() << endl;
+    cout << "Div result " << *C << endl;
 
     char n_left[] = "11111";
     char n_right[] = "25";
@@ -88,7 +88,7 @@ void checkDiv()
     A->Create(strlen(n_left), n_left);
     B->Create(strlen(n_right), n_right);
     C = *A / *B;
-    cout << "Div result " << C->outPut() << endl;
+    cout << "Div result " << *C << endl;
 }   
 
 void checkEquality()
@@ -100,13 +100,13 @@ void checkEquality()
     char right[] = "222"; 
     
     cout << "Comparing two numbers" << endl; 
-    cout << left << " == " << right << " is " << (*A ^ *B) << endl;
+    cout << left << " == " << right << " is " << (*A == *B) << endl;
 
     A->Create(strlen(left), left);
     B->Create(strlen(left), left);
    
     cout << "Comparing two numbers" << endl; 
-    cout << left << " == " << left << " is " << ( *A ^ *B ) << endl;
+    cout << left << " == " << left << " is " << ( *A == *B ) << endl;
 }
 
 void checkGrThen()

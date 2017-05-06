@@ -1,5 +1,7 @@
 #ifndef HDECIMAL
 
+#include <iostream>
+
 #define MAX_LENGTH 255
 #define Z '0'
 #define BASE 10
@@ -37,7 +39,9 @@ class Dec
         Dec *operator/(const Dec &Operand);
         bool operator>(const Dec &Operand);
         bool operator<(const Dec &Operand);
-        bool operator^(const Dec &Operand);
+        bool operator==(const Dec &Operand);
+
+        friend std::ostream &operator<<(std::ostream &stream, const Dec &Operand);
 };
 
 #endif
