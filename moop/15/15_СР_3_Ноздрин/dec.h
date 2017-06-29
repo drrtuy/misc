@@ -33,10 +33,11 @@ class Dec
         bool getOverflow();
         int getLength();
         char *outPut();
-        Dec *operator+(const Dec &Operand);
-        Dec *operator-(const Dec &Operand);
-        Dec *operator*(const Dec &Operand);
-        Dec *operator/(const Dec &Operand);
+        Dec &operator=(const Dec &Operand);
+        Dec &operator+(const Dec &Operand);
+        Dec &operator-(const Dec &Operand);
+        Dec &operator*(const Dec &Operand);
+        Dec &operator/(const Dec &Operand);
         bool operator>(const Dec &Operand);
         bool operator<(const Dec &Operand);
         bool operator==(const Dec &Operand);

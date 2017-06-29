@@ -8,8 +8,8 @@ int main()
     checkConstrDestr();
     checkAnd();
     checkOr();
-    checkNot();
     checkXor();
+    checkNot();
 
     return 0;
 }

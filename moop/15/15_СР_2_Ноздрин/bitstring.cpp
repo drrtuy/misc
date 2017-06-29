@@ -101,12 +101,28 @@ void BitString::stdoutPut(const char *msg)
     cout << _bits << endl;
 }
 
+BitString &BitString::operator=(const BitString &Operand)
+{
+    if(&Operand != this){
+        if(_length != 0)
+            delete[] _bits;
+        _length = Operand._length;
+        char *tmp = new char[_length+1];
+        for(int i = 0; i < _length; i++){
+            tmp[i] = Operand._bits[i];
+        }
+        tmp[_length] = '\0';
+        _bits = tmp;
+    }
+    return *this;
+}
+
 //
 // Метод выполняет операцию And над операндами-экземплярами класса.
 // in1 const BitString & второй операнд.
 // out *BitString
 //
-BitString *BitString::operator&(const BitString &Operand)
+BitString &BitString::operator&(const BitString &Operand)
 {
     BitString *Shortest = this;
     BitString *Longest = (BitString *) &Operand;
@@ -147,15 +163,15 @@ BitString *BitString::operator&(const BitString &Operand)
     BitString *result = new BitString(Shortest->_length, bits);
     //printf("And: %p\n", result);
 
-    return result;
+    return *result;
 }
 
 //
 // Метод выполняет операцию OR над операндами экземплярами класса.
 // in1 const BitString & второй операнд.
-// out *BitString
+// out &BitString
 //
-BitString *BitString::operator|(const BitString &Operand)
+BitString &BitString::operator|(const BitString &Operand)
 {
     char extraBit = '0';
     int curBitSum = 0;
@@ -243,15 +259,15 @@ BitString *BitString::operator|(const BitString &Operand)
 
     BitString *result = new BitString(length, bits); 
 
-    return result;
+    return *result;
 }
 
 //
 // Метод выполняет операцию OR над операндами экземплярами класса.
 // in1 const BitString & второй операнд.
-// out *BitString
+// out &BitString
 //
-BitString *BitString::operator^(const BitString &Operand)
+BitString &BitString::operator^(const BitString &Operand)
 {
     BitString *Shortest = this;
     BitString *Longest = (BitString *) &Operand;
@@ -309,14 +325,14 @@ BitString *BitString::operator^(const BitString &Operand)
    
     BitString *result = new BitString(Longest->_length, bits); 
    
-    return result;
+    return *result;
 }
 
 //
 // Метод выполняет операцию NOT над битовой строкой объекта.
-// out BitString
+// out &BitString
 //
-BitString *BitString::operator!()
+BitString &BitString::operator!()
 {
     char *bits; 
     bits = (char *)malloc(sizeof(char) * this->_length + 1);
@@ -343,5 +359,5 @@ BitString *BitString::operator!()
 
     BitString *result = new BitString(this->_length, bits);
 
-    return result;
+    return *result;
 }

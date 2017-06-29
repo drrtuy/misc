@@ -22,10 +22,11 @@ class BitString
         void create(int _length);
         char *outPut(const char *msg);
         void stdoutPut(const char *msg);
-        BitString *operator&(const BitString &bitString);
-        BitString *operator|(const BitString &bitString);
-        BitString *operator^(const BitString &bitString);
-        BitString *operator!();
+        BitString &operator=(const BitString &bitString);
+        BitString &operator&(const BitString &bitString);
+        BitString &operator|(const BitString &bitString);
+        BitString &operator^(const BitString &bitString);
+        BitString &operator!();
 };
 
 #endif

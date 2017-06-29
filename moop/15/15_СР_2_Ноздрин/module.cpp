@@ -27,24 +27,24 @@ void checkAnd()
 {
     BitString A(1, "0");
     BitString B(1, "0");
-    BitString *C;
+    BitString *C = new BitString();
 
     cout << "<<<Checking AND operation>>>" << endl;
-    C = A & B;
+    *C = A & B;
     cout << A.outPut("Bit string value A ") << B.outPut(" Bit string value B ") << "\t" << C->outPut(" Anded bit string ") << endl;
 
     //printf("Check %p\n", &C);
 
     A.init(1, "1");
     B.init(1, "0");
-    C = A & B;
+    *C = A & B;
     cout << A.outPut("Bit string value A ") << B.outPut(" Bit string value B ") << "\t" << C->outPut(" Anded bit string ") << endl;
 
     //printf("Check %p\n", &C);  
 
     A.init(1, "0");
     B.init(1, "1");
-    C = A & B;
+    *C = A & B;
     cout << A.outPut("Bit string value A ") << B.outPut(" Bit string value B ") << "\t" << C->outPut(" Anded bit string ") << endl;
 
 
@@ -52,14 +52,14 @@ void checkAnd()
 
     A.init(1, "1");
     B.init(1, "1");
-    C = A & B;
+    *C = A & B;
     cout << A.outPut("Bit string value A ") << B.outPut(" Bit string value B ") << "\t" << C->outPut(" Anded bit string ") << endl;
 
     //printf("Check %p\n", &C);   
 
     A.init(5, "11111");
     B.init(4, "0001");
-    C = A & B;
+    *C = A & B;
     cout << A.outPut("Bit string value A ") << B.outPut(" Bit string value B ") << "\t" << C->outPut(" Anded bit string ") << endl;
 
     //printf("Check %p\n", &C);   
@@ -73,31 +73,31 @@ void checkOr()
 {
     BitString *A = new BitString(1, "0");
     BitString *B = new BitString(1, "0");
-    BitString *C;
+    BitString *C = new BitString();
 
     cout << "<<<Checking OR operation>>>" << endl;
 
-    C = *A | *B;
+    *C = *A | *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Ored bit string ") << endl;
 
     A->init(1, "1");
     B->init(1, "0");
-    C = *A | *B;
+    *C = *A | *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Ored bit string ") << endl;
     
     A->init(1, "0");
     B->init(1, "1");
-    C = *A | *B;
+    *C = *A | *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Ored bit string ") << endl;
 
     A->init(1, "1");
     B->init(1, "1");
-    C = *A | *B;
+    *C = *A | *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Ored bit string ") << endl;
 
     A->init(5, "11111");
     B->init(4, "0001");
-    C = *A | *B;
+    *C = *A | *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Ored bit string ") << endl;
 }
 
@@ -111,33 +111,33 @@ void checkXor()
 {
     BitString *A = new BitString(1, "0");
     BitString *B = new BitString(1, "0");
-    BitString *C;
+    BitString *C = new BitString();
 
     cout << "<<<Checking XOR operation>>>" << endl;
 
     A->init(1, "0");
     B->init(1, "0");
-    C = *A ^ *B;
+    *C = *A ^ *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Xored bit string ") << endl;
 
     A->init(1, "1");
     B->init(1, "0");
-    C = *A ^ *B;
+    *C = *A ^ *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Xored bit string ") << endl;
     
     A->init(1, "0");
     B->init(1, "1");
-    C = *A ^ *B;
+    *C = *A ^ *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Xored bit string ") << endl;
 
     A->init(1, "1");
     B->init(1, "1");
-    C = *A ^ *B;
+    *C = *A ^ *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Xored bit string ") << endl;
 
     A->init(5, "11111");
     B->init(4, "0001");
-    C = *A ^ *B;
+    *C = *A ^ *B;
     cout << A->outPut("Bit string value A ") << B->outPut(" Bit string value B ") << "\t" << C->outPut(" Xored bit string ") << endl;
 }
 
@@ -149,21 +149,21 @@ void checkNot()
 {
 
     BitString *A = new BitString(1,"1");
-    BitString *B;
+    BitString *B = new BitString();
 
     cout << "<<<Checking NOT operation>>>" << endl;
 
     cout << A->outPut("Bit string init value: ");
-    B = !*A;
+    *B = !*A;
     cout << B->outPut(" op result: ") << endl;
 
     A->init(1, "0");
     cout << A->outPut("Bit string init value: ");
-    B = !*A;
+    *B = !*A;
     cout << B->outPut(" op result: ") << endl;
     
     A->init(5, "10101");
     cout << A->outPut("Bit string init value: ");
-    B = !*A;
+    *B = !*A;
     cout << B->outPut(" op result: ") << endl;
 }

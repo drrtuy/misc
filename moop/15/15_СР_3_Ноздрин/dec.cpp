@@ -239,12 +239,27 @@ char *Dec::_reverseStr(const char *input)
     return result;
 }
 
+Dec &Dec::operator=(const Dec &Operand)
+{
+    if(this != &Operand){
+        if(_length != 0)
+            delete[] _digits;
+        _length = Operand._length;
+        char *tmp = new char[_length+1];
+        strncpy(tmp, Operand._digits, _length);
+        tmp[_length] = '\0';
+        _digits = tmp;
+        _overflow = Operand._overflow;
+    }
+    return *this;
+}
+
 //
 // Функция сложения двух Dec. Поразрядно складываем цифры чисел и цифру переноса. 
 // in1 const Dec& правый операнд сложения 
 // out Dec результат сложения
 //
-Dec *Dec::operator+(const Dec &Operand)
+Dec &Dec::operator+(const Dec &Operand)
 {
     Dec *Longest = this, *Shortest = (Dec *) &Operand;
     int intBuf = 0, resultLength = 0;
@@ -309,7 +324,7 @@ Dec *Dec::operator+(const Dec &Operand)
 
     delete resultDigits;
 
-    return result;
+    return *result;
 }
 
 //
@@ -319,7 +334,7 @@ Dec *Dec::operator+(const Dec &Operand)
 // in1 const Dec& вычитаемое 
 // out Dec разность
 //
-Dec *Dec::operator-(const Dec &Operand)
+Dec &Dec::operator-(const Dec &Operand)
 {
 
     Dec *Left = this, *Right = (Dec *) &Operand;
@@ -337,7 +352,7 @@ Dec *Dec::operator-(const Dec &Operand)
     {
         Dec *result = new Dec(0);
         result->_overflow = true;
-        return result;
+        return *result;
     }
 
     // Идём по строке цифр уменьшаемого.
@@ -362,7 +377,7 @@ Dec *Dec::operator-(const Dec &Operand)
         {
             Dec *result = new Dec(0);
             result->_overflow = true;
-            return result;
+            return *result;
         } else if (intBuf < 0) // Вычитаем и учитываем перенос на следующем шаге.
         {
             //cout << "set transfer base" << endl;
@@ -385,7 +400,7 @@ Dec *Dec::operator-(const Dec &Operand)
     {
         Dec *result = new Dec(0);
         result->_overflow = true;
-        return result;
+        return *result;
     }
   
     //cout << "resultDigits: " << resultDigits << " resutLength: " << resultLength << endl;
@@ -394,7 +409,7 @@ Dec *Dec::operator-(const Dec &Operand)
 
     delete resultDigits;
 
-    return result;
+    return *result;
 }
 
 //
@@ -402,7 +417,7 @@ Dec *Dec::operator-(const Dec &Operand)
 // in1 const Dec& правый операнд 
 // out Dec произведение
 //
-Dec *Dec::operator*(const Dec &Operand)
+Dec &Dec::operator*(const Dec &Operand)
 {
     Dec *Big = this, *Small = (Dec *) &Operand;
     int buf;
@@ -435,7 +450,7 @@ Dec *Dec::operator*(const Dec &Operand)
 
     delete strBuf; 
 
-    return result;
+    return *result;
 }
 
 //
@@ -443,7 +458,7 @@ Dec *Dec::operator*(const Dec &Operand)
 // in1 const Dec& правый операнд 
 // out Dec неполное частное
 //
-Dec *Dec::operator/(const Dec &Operand)
+Dec &Dec::operator/(const Dec &Operand)
 {
     Dec *Left = this, *Right = (Dec *) &Operand;
     int lBuf, rBuf;
@@ -452,13 +467,13 @@ Dec *Dec::operator/(const Dec &Operand)
     if(*Left < *Right)
     {
         Dec *result = new Dec(0);
-        return result;
-    } else if (*Right->_digits == '0')
+        return *result;
+    }/* else if (*Right->_digits == '0')
     {
         cout << "Dec::Div() Div by 0" << endl;
         abort();
     }
-
+    */
     sscanf(Left->outPut(), "%d", &lBuf);
     sscanf(Right->outPut(), "%d", &rBuf);
     //cout << "Big: " << Big.outPut() << endl;
@@ -469,7 +484,7 @@ Dec *Dec::operator/(const Dec &Operand)
     Dec *result = new Dec(strlen(strBuf), strBuf);     
     delete strBuf; 
  
-    return result;
+    return *result;
 }
 
 //
@@ -492,7 +507,8 @@ bool Dec::operator==(const Dec &Operand)
 // 
 bool Dec::operator>(const Dec &Operand)
 {
-    Dec *diff = *this - Operand;
+    Dec *diff = new Dec();
+    *diff = *this - Operand;
     return (*diff->_digits != '0');
 }
 
@@ -504,6 +520,7 @@ bool Dec::operator>(const Dec &Operand)
 // 
 bool Dec::operator<(const Dec &Operand)
 {
-    Dec *diff = *this - Operand;
+    Dec *diff = new Dec();
+    *diff = *this - Operand;
     return ((*diff->_digits == '0') && (diff->_overflow));
 }
