@@ -4,8 +4,9 @@
 #include <libpq-fe.h>
 
 #define MAX_L 256
-#define PARENT_SLEEP_TO 5
+#define PARENT_SLEEP_TO 60
 #define ONE 1
+#define LOCK_FILE "/tmp/.executer.lock"
 
 void *
 doGetShared(size_t size);
@@ -20,7 +21,7 @@ char *
 doGetConnString(const char *hostname);
 
 char *
-doGetLocalConnString();
+doGetLocalConnString(const char *dbname);
 
 void
 doChildRun(const char *target, void *shmem);
@@ -37,4 +38,9 @@ notifyPerson(const char *localHostname, const char *quries, const char *contact)
 void
 doUpdateTask(const char *hostname, long int id);
 
+signed int
+doSetFlock();
+
+void
+doReleaseFlock();
 #endif

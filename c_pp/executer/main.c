@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <stdlib.h>
 
 #include "executer.h"
 
@@ -13,6 +14,7 @@ int main(int argc, char **argv)
     pid_t pid;
     void *shmem;
     int status;
+    signed int lockFd;
 
     shmem = doGetShared(sizeof(long int));
 
@@ -20,6 +22,10 @@ int main(int argc, char **argv)
         hostname = argv[1];
     } else
         hostname = "localhost";
+
+    if((lockFd = doSetFlock()) == -1){
+        exit(1);
+    }
 
     pid = fork();
     if(pid == 0){
@@ -32,6 +38,8 @@ int main(int argc, char **argv)
         wait(&status);
         munmap(shmem, sizeof(long int));
     } 
+
+    doReleaseFlock();
 
     return 0;
 }

@@ -3,6 +3,12 @@
 #include <libpq-fe.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "executer.h"
 
@@ -75,11 +81,12 @@ doGetConnString(const char *hostname)
 }
 
 char *
-doGetLocalConnString()
+doGetLocalConnString(const char *dbname)
 {
-    char *result = (char *) malloc(129*sizeof(char));
+    char *result = (char *) malloc((MAX_L+1)*sizeof(char));
     // Hostname must be changed to a localhost.
-    strncpy(result, "host=pg96 user=postgres dbname=devops", 128);
+    snprintf(result, MAX_L, "host=127.0.0.1 user=postgres dbname=%s", dbname);
+    printf("doGetLocalConnString() conninfo: %s\n", result);
     return result;
 }
 
@@ -110,7 +117,7 @@ doChildRun(const char *target, void *shmem)
 
     // Make the query external to change it w/o compilation.
     char *task_query_text = "WITH c AS(  "
-    "SELECT id, query, updated_at "
+    "SELECT id,query,updated_at "
     "FROM "
     "    sched.queries q "
     "WHERE "
@@ -121,15 +128,16 @@ doChildRun(const char *target, void *shmem)
     ") UPDATE  "
     "    sched.queries  "
     "SET  "
-    "    updated_at=now() "
+    "    updated_at=now(), priority=priority-1"
     "WHERE "
     "    id = (SELECT id FROM C)  "
-    "RETURNING id, query; ";
+    " AND priority > 0 "
+    "RETURNING id,query,COALESCE(task#>>'{\"dbname\"}','postgres') as dbname; ";
    
     char *task_query = (char *) malloc(sizeof(char)*MAX_L*2);
     char hostname[MAX_L];
     gethostname(hostname, MAX_L-1);
-    snprintf(task_query, MAX_L, task_query_text, hostname);  
+    snprintf(task_query, MAX_L*2-1, task_query_text, hostname);  
 
     printf("%s\n", task_query);
 
@@ -152,11 +160,15 @@ doChildRun(const char *target, void *shmem)
     }
 
     int queryLength = PQgetlength(res, 0, 1);
+    int dbnameLength = PQgetlength(res, 0, 2);
     char *id = PQgetvalue(res, 0, 0);
-    char *queries = (char *) malloc(queryLength+1);
+    char queries[queryLength];
     strncpy(queries, PQgetvalue(res, 0, 1), queryLength);
     queries[queryLength] = '\0';
-    printf("id %s\tqueries %s\n\r", id, queries);
+    char dbname[MAX_L];
+    strncpy(dbname, PQgetvalue(res, 0, 2), dbnameLength);
+    dbname[dbnameLength] = '\0';
+    printf("id %s\tdbname %s\tqueries %s\n\r", id, dbname, queries);
     *(long int*) shmem = atoi(id);
 
     free(connstring);
@@ -172,14 +184,13 @@ doChildRun(const char *target, void *shmem)
     */
 
     //Executing the query.
-    connstring = doGetLocalConnString();
+    connstring = doGetLocalConnString((const char *)dbname);
     conn = doConnect(connstring); 
     
     if(PQstatus(conn) != CONNECTION_OK){
             fprintf(stderr, "Local connection failed at doChildRun() with %s\n",
                 PQerrorMessage(conn));
             doGracefulExit(conn);
-            free(connstring);
             return;
     }
 
@@ -249,7 +260,7 @@ doUpdateTask(const char *hostname, long int id)
     "WHERE "
     "    id = %d; ";
 
-    char update_query[256];
+    char update_query[MAX_L*2];
     
     sprintf(update_query, query_text, id); 
    
@@ -258,15 +269,44 @@ doUpdateTask(const char *hostname, long int id)
     res = PQexec(conn, update_query);
     //printf("result: %d\n", PQresultStatus(res));
   
-/* 
+ 
     //doesn't complain if zero rows returned. 
-    if(PQresultStatus(res) != PGRES_TUPLES_OK){
-        fprintf(stderr, "Failed to retrieve scheduler data with %s\n", PQerrorMessage(conn));
+    //if(PQresultStatus(res) != PGRES_TUPLES_OK){
+    //    fprintf(stderr, "Failed to retrieve scheduler data with %s\n", PQerrorMessage(conn));
         PQclear(res);
         doGracefulExit(conn);
         return;
-    }
-*/
+    //}
+
 
 }
+
+signed int
+doSetFlock()
+{
+    int fd = -1;   
+ 
+    fd = open(LOCK_FILE, O_RDONLY | O_CREAT);
+    if(flock(fd, LOCK_EX | LOCK_NB) != 0){
+        if(errno == EWOULDBLOCK){
+           fprintf(stderr, "doSetFlock(): Already locked.\n");
+        } else {
+            perror("doSetFlock(): ");
+        }
+        close(fd);
+        fd = -1;
+    }
+
+    return fd;
+
+}
+
+void
+doReleaseFlock(signed int fd)
+{
+    flock(fd, LOCK_UN);   
+    close(fd);
+}
+
+
 
