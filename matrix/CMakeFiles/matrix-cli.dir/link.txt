@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=gnu++11 -g   CMakeFiles/matrix-cli.dir/operand.cpp.o CMakeFiles/matrix-cli.dir/operation.cpp.o CMakeFiles/matrix-cli.dir/matrix-cli.cpp.o  -o matrix-cli -rdynamic 
