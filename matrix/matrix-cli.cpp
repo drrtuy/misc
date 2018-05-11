@@ -10,6 +10,11 @@ bool run = true;
 //using namespace std;
 using namespace matrix;
 
+/*namespace matrix
+{
+    class Expression;
+}*/
+
 int main(int argc, char **argv)
 {
     std::string exprStr;

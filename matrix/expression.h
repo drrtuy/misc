@@ -15,17 +15,17 @@ namespace matrix
     {
         private:
             bool iIsQuitStmt;
-            std::string iExprStr;
-            matrix::Operation iTopOp;
-            matrix::Operand *iResult;
+            std::string* iExprStr;
+            matrix::SumOp* iTopOp;
+            matrix::Operand* iResult;
             bool iFatalError;
             std::string iErrorMsg;
             
             bool parse();
         
         public:
-            Expression(): iIsQuitStmt(false), iFatalError(false),
-            iErrorMsg(NULL) { };
+            Expression(): iIsQuitStmt(false), iFatalError(false)
+             { };
             // Check for non ASCII chars
             Expression(std::string exprStr);
             ~Expression();

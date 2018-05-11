@@ -1,0 +1,133 @@
+%{
+#include <stdio.h>
+#include "lex.yy.h"
+#include "structs.h"
+#include "stdint.h"
+
+#define SIZE 100
+
+
+void yyerror(char const *msg);
+%}
+
+%define parse.trace
+
+%union{
+    struct Matrix* iM;
+    double dval;
+    double* dpnt;
+    double** dpntpnt;
+    int ival;
+    int* ipnt;
+    int** ipntpnt;
+    char* str;
+};
+
+%token <dval> FLOAT EOL RPAR LPAR
+%token <ival> NUM
+%left ADD SUB
+%left MUL DIV
+
+%type <iM> IMATRIX
+%type <iM> FMATRIX
+%type <dval> exp
+%type <dpnt> frow
+%type <ipnt> irow
+%type <dpntpnt> frows
+%type <ipntpnt> irows
+%type <iM> mexp
+
+%%
+
+input: %empty
+| input line
+;
+
+line: EOL { printf("|> ");}
+| exp EOL { printf("|R> %.4lf\n", $exp); }
+| mexp EOL { printf("|R> %s\n", $mexp->toString()); }
+| IMATRIX EOL { printf("|m> %s\n", $1->toString()); }
+| FMATRIX EOL { printf("|m> %s\n", $1->toString()); }
+;
+
+exp: NUM { $$ = $1; }
+| FLOAT { $$ = $1; }
+| exp ADD exp { $$ = $1 + $3; }
+| exp SUB exp { $$ = $1 - $3; }
+| exp MUL exp { $$ = $1 * $3; }
+| exp DIV exp { $$ = $1 / $3; }
+;
+
+mexp: IMATRIX ADD IMATRIX { $$ = &(*($1) + *($3)); }
+;
+
+IMATRIX: LPAR irows RPAR { 
+     //printf("before create last_line %d\n", @2.last_line);
+     //printf("before create last_column %d\n", @2.last_column);
+    $$ = new Matrix(@2.last_line, @2.last_column, $2, 0); 
+}
+;
+
+FMATRIX: LPAR frows RPAR { 
+    $$ = new Matrix(@2.last_line, @2.last_column, 0, $2); 
+
+}
+;
+
+irows: irow 
+{ 
+    $$ = new int*[SIZE]; 
+     //printf("irows col 0 %d\n", $1[0]);
+     //printf("irows col 1 %d\n", $1[1]);
+     //printf("irows col 2 %d\n", $1[2]);
+    $$[0] = $irow;
+}
+| irows opt_semicolon irow 
+{ 
+    
+     //printf("col 0 %d\n", $irow[0]);
+     //printf("col 1 %d\n", $irow[1]);
+     //printf("col 2 %d\n", $irow[2]);
+     //printf("first_column so far %d\n", @1.first_column);
+     //printf("first_line so far %d\n", @1.first_line);
+     //printf("last_column so far %d\n", @1.last_column);
+     //printf("last_line so far %d\n", @1.last_line);
+    if (@2.first_column == -1 || @2.first_column != @3.last_column)
+    {
+        yyerror("Inconsistent matrices dimensions");
+        YYERROR;
+    }
+    $1[@2.last_line] = $irow; $$ = $1; 
+}
+;
+
+frows: frow { $$ = new double*[SIZE]; $$[0] = $frow; }
+| frow ';' frows { $3[1] = $frow; $$ = $3; }
+;
+
+irow: NUM 
+{
+ $$ = new int[SIZE]; $$[0] = $NUM; 
+ //printf("first col %d\n", $$[0]);
+}
+| irow NUM 
+{ 
+   //printf("last_column before %d\n", @2.last_column);
+    $1[@2.last_column - 1] = $NUM; $$ = $1; 
+     //printf("irow col 0 %d\n", $$[0]);
+     //printf("irow col 1 %d\n", $$[1]);
+     //printf("irow col 2 %d\n", $$[2]);
+}
+;
+frow: FLOAT { $$ = new double[SIZE]; $$[0] = $FLOAT; }
+| FLOAT frow { @2.first_column += 1; $2[@2.first_column] = $FLOAT; $$ = $2; }
+;
+
+opt_semicolon: ';'
+;
+
+%%
+
+void yyerror(char const *msg) {
+    fprintf(stderr, "Error: %s\n", msg);
+}

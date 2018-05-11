@@ -7,10 +7,15 @@ namespace matrix
 {
     class Operand
     {
+        private:
+            std::string iResult;
+            
         public:
             Operand() { };
-            Operand(std::string tokenStr) { };
+            Operand(std::string tokenStr): iResult(tokenStr) { };
             ~Operand() { };
+        
+        friend std::ostream &operator<<(std::ostream &stream, const Operand &op) { stream << op.iResult; }
     
     };
 

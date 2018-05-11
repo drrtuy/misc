@@ -1,5 +1,6 @@
 #include <string>
 #include "operation.h"
+#include "operand.h"
 
 //using namespace matrix;
 
@@ -14,12 +15,13 @@ namespace matrix
         else if(tokens[1] == "-")
             type = DEC;       
     }
+    //Operation::Operation(Operand *lhs, opType, Operand *rhs) { }
     
-    Operation::Operation(Operand *lhs, opType, Operand *rhs) { }
-    
-    Operand SumOp::execute()
+    Operand* 
+    SumOp::execute()
     {
-        Operand *result = new Operand("[1 1; 1 1;]");
-        return *result;
+        Operand *result = NULL;
+        result = new Operand("[1 1; 1 1;]");
+        return result;
     }
 }

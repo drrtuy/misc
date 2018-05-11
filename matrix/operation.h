@@ -29,19 +29,21 @@ namespace matrix
         public:
             Operation() { };
             Operation(strVectorT);
-            Operation(Operand *lhs, opType, Operand *rhs);
-            ~Operation() { };
+            //Operation(Operand *lhs, opType, Operand *rhs);
+            virtual ~Operation() { };
             
-            virtual Operand execute();
+            virtual Operand* execute() { };
+            //inline Operand* result() { return iResult; };
     };
     
-    class SumOp: Operation
+    class SumOp: public Operation
     {
-        SumOp();
-        ~SumOp();
-        Operand execute();
+        public:
+            SumOp() { };
+            SumOp(strVectorT tokens): Operation::Operation(tokens) {};
+            ~SumOp() { };
+            Operand* execute();
     };
     
 }
-
 #endif
