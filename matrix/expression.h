@@ -20,8 +20,9 @@ namespace matrix
             matrix::Operand* iResult;
             bool iFatalError;
             std::string iErrorMsg;
+            int iDebugFlags;
             
-            bool parse();
+            int parse();
         
         public:
             Expression(): iIsQuitStmt(false), iFatalError(false)

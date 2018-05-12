@@ -40,7 +40,8 @@ int main(int argc, char **argv)
         if (expr->quit())
         {
             run = false;
-        }       
+        }   
+        /*    
         else if(expr->execute())
         {
             std::cout << expr->result() << std::endl;
@@ -49,7 +50,7 @@ int main(int argc, char **argv)
         {
             std::cout << "FAIL: " << expr->failureMsg() << std::endl;
         }
-        
+        */
         //cout << exprStr << endl;
     }
 

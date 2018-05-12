@@ -1,10 +1,10 @@
 %{
 #include <stdio.h>
-#include "parser.tab.h"
+#include "parser.tab.hpp"
 %}
 
 %option warn noyywrap nodefault
-%option header-file="lex.yy.h"
+%option header-file="lex.tab.hpp"
 
 SPACE [ \t]
 RPAR \]
