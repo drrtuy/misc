@@ -23,6 +23,7 @@ void yyerror(char const *msg);
     char* str;
 };
 
+%token <str> QUIT
 %token <dval> FLOAT EOL RPAR LPAR
 %token <ival> NUM
 %left ADD SUB
@@ -44,6 +45,7 @@ input: %empty
 ;
 
 line: EOL { }
+| QUIT { exit(0); }
 | exp { printf("M-CLI# %.4lf\n", $exp); }
 | mexp { printf("M-CLI# %s\n", $mexp->toString()); }
 | IMATRIX EOL { printf("M-CLI# %s\n", $1->toString()); }
@@ -58,9 +60,31 @@ exp: NUM { $$ = $1; }
 | exp DIV exp { $$ = $1 / $3; }
 ;
 
-mexp: IMATRIX ADD IMATRIX { $$ = &(*($1) + *($3)); 
- //printf(">>>%s\t%s\n", $1->toString(), $3->toString()); 
+mexp: IMATRIX ADD IMATRIX { 
+    if($1->compDimensions(*$3))
+    {
+        yyerror("Inconsistent matrices dimensions");
+        YYERROR;
+    }
+    $$ = &(*($1) + *($3)); 
+} 
+| IMATRIX SUB IMATRIX { 
+    if($1->compDimensions(*$3))
+        {
+            yyerror("Inconsistent matrices dimensions");
+            YYERROR;
+        }
+    $$ = &(*($1) - *($3)); 
 }
+| IMATRIX MUL IMATRIX { 
+    if($1->compDimensions(*$3, '*'))
+        {
+            yyerror("Inconsistent matrices dimensions");
+            YYERROR;
+        }
+    $$ = &(*($1) * *($3)); 
+}
+;
 ;
 
 IMATRIX: LPAR irows RPAR { 

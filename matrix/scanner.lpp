@@ -15,6 +15,9 @@ FLOAT [0-9]+\.[0-9]+
 
 %%
 
+QUIT    { return QUIT; }
+quit    { return QUIT; }
+
 {SPACE}  {  }
 {COL} { yylloc.last_line += 1; 
     //printf("COL lexer %d\n", yylloc.first_column);

@@ -18,6 +18,7 @@ struct Matrix
         uint32_t cols;
         int** idata;
         double** fdata;
+        bool empty;
     
         Matrix() : rows(0), cols(0) { idata = new int*[SIZE]; };
         Matrix(int rows, int cols, int** idata = 0, double** fdata = 0):
@@ -27,6 +28,10 @@ struct Matrix
               //printf("Matrix() %d\n", idata[0][2]);
               };
         ~Matrix();
-        Matrix &operator+(Matrix& rhs);
+        Matrix& operator+(Matrix& rhs);
+        Matrix& operator-(Matrix& rhs);
+        Matrix& operator*(Matrix& rhs);
+        Matrix& operation(Matrix& rhs, char op);
+        bool compDimensions(Matrix& rhs, char op = '+');
         char* toString();
 };
