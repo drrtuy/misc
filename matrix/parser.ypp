@@ -88,14 +88,15 @@ mexp: IMATRIX ADD IMATRIX {
 ;
 
 IMATRIX: LPAR irows RPAR { 
-    // printf("before create last_line %d\n", @2.last_line);
-    // printf("before create last_column %d\n", @2.last_column);
-    $$ = new Matrix(@2.last_line, @2.last_column, $2, 0);
+    printf("before create last_line %d\n", @2.last_line);
+    printf("before create last_column %d\n", @2.last_column);
+    $$ = new Matrix(@2.last_line + 1, @2.last_column, $2, 0);
 }
 ;
 
 FMATRIX: LPAR frows RPAR { 
-    $$ = new Matrix(@2.last_line, @2.last_column, 0, $2); 
+    //int rows = rows = @2.last_line + 1;
+    $$ = new Matrix(@2.last_line + 1, @2.last_column, 0, $2); 
 
 }
 ;

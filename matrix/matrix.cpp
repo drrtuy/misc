@@ -10,7 +10,7 @@ Matrix::operation(Matrix& rhs, char op)
 {
     Matrix* result = new Matrix();
 
-    if(this->rows == 0)
+    if(this->rows == 1)
     {
         for(int i = 0; i < this->cols; i++)
         {
@@ -32,9 +32,9 @@ Matrix::operation(Matrix& rhs, char op)
         return *result;
     }
 
-    for(int j = 0; j <= this->rows; j++)
+    for(int j = 0; j < this->rows; j++)
     {
-        for(int i = 0; i <= this->cols; i++)
+        for(int i = 0; i < this->cols; i++)
         {
             if(!i)
                 result->idata[j] = new int[SIZE];
@@ -77,20 +77,23 @@ Matrix::operator*(Matrix& rhs)
         {
             if(!i)
                 result->idata[0] = new int[SIZE];
-            result->idata[0][i] = this->idata[0][i] - rhs.idata[0][i];
+            result->idata[0][0] = this->idata[0][i] * rhs.idata[i][0];
         }
 
         result->rows = this->rows;
         return *result;
     }
 
-    for(int j = 0; j <= this->rows; j++)
+    for(int j = 0; j < this->rows; j++)
     {
-        for(int i = 0; i <= this->cols; i++)
+        result->idata[j] = new int[SIZE];
+        for(int it = 0; it < rhs.cols; it++)
         {
-            if(!i)
-                result->idata[j] = new int[SIZE];
-            result->idata[j][i] = this->idata[j][i] - rhs.idata[j][i];
+            result->idata[j][it] = 0;
+            for(int iter = 0; iter < rhs.rows; iter++)
+            {
+                result->idata[j][it] += this->idata[j][iter] * rhs.idata[iter][it];
+            }
         }
     }
 
@@ -108,7 +111,7 @@ Matrix::toString()
     result[0]='[';
     int totBytes = 1;
     int j,i = 0;
-    for(j = 0; j <= this->rows; j++)
+    for(j = 0; j < this->rows; j++)
     {
         if(this->empty)
             continue;
@@ -141,5 +144,8 @@ Matrix::compDimensions(Matrix& rhs, char op)
     if ( op == '+' || op == '-')
         return this->rows != rhs.rows || this->cols != rhs.cols;
     else if ( op == '*' )
-        return false;
+    {
+        fprintf(stderr, "got here %d %d\n", this->cols, rhs.rows);
+        return this->cols != rhs.rows;
+    }
 }
