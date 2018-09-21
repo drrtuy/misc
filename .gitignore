@@ -1,3 +1,8 @@
+main
+matrix/matrix-cli
+matrix/CMakeFiles
+*.back
+*.swp
 runable
 *.csv
 *.in

@@ -9,6 +9,14 @@
 #define W1_T4_STR_LEN 100
 #define SM_BUF 10
 
+#ifdef __unix__
+#define CONV "%lF"
+#define EXT_CONV "[%lF %d]"
+#elif
+#define CONV "%lf"
+#define EXT_CONV "[%lf %d]"
+#endif
+
 enum OPTS { STDOUT, STRING };
 
 char* arr_output(void* el_arr_c, int size, enum OPTS opt);
@@ -47,7 +55,7 @@ int main(int argc, char** argv)
 	int rc;
     for(; i < size - 1; i++)
     {
-        rc = sscanf(numbers_curs, "%lf", &(numbers[i].value));
+        rc = sscanf(numbers_curs, CONV, &(numbers[i].value));
         numbers[i].idx = i + 1; 
         // skip scanned int
         while(*numbers_curs != ' ')
@@ -59,7 +67,7 @@ int main(int argc, char** argv)
         }
     }
     // process the last element to omit if in the previous loop
-    sscanf(numbers_curs, "%lf", &(numbers[i].value));
+    sscanf(numbers_curs, CONV, &(numbers[i].value));
     numbers[i].idx = i + 1; 
 
     // we don't need this string memory anymore
@@ -102,9 +110,15 @@ arr_output(void* el_arr_c, int size, enum OPTS opt)
     if (opt != STDOUT)
     {
        result = (char *) malloc(W1_T4_STR_LEN * sizeof(char));
+#ifdef __unix__
+       sprintf(result, "[%lF %d] [%lF %d] [%lF %d]", el_arr[0].value, el_arr[0].idx,
+            el_arr[size/2].value, el_arr[size/2].idx,
+            el_arr[size-1].value, el_arr[size-1].idx ); 
+#elif
        sprintf(result, "[%lf %d] [%lf %d] [%lf %d]", el_arr[0].value, el_arr[0].idx,
             el_arr[size/2].value, el_arr[size/2].idx,
             el_arr[size-1].value, el_arr[size-1].idx ); 
+#endif
     }
     else
     {

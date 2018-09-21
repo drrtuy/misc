@@ -1,7 +1,0 @@
-/git/misc/matrix/CMakeFiles/install.dir
-/git/misc/matrix/CMakeFiles/list_install_components.dir
-/git/misc/matrix/CMakeFiles/rebuild_cache.dir
-/git/misc/matrix/CMakeFiles/matrix-cli.dir
-/git/misc/matrix/CMakeFiles/install/strip.dir
-/git/misc/matrix/CMakeFiles/install/local.dir
-/git/misc/matrix/CMakeFiles/edit_cache.dir
