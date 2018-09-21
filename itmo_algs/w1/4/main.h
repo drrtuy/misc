@@ -2,7 +2,7 @@
 
 typedef struct el 
 {
-    long double value;
+    double value;
     unsigned int idx;
 } element_t;
 

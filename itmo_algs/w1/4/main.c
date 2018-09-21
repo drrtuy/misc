@@ -5,7 +5,7 @@
 
 #include "main.h"
 
-#define BUF_LEN 50000
+#define BUF_LEN 2097152
 #define W1_T4_STR_LEN 100
 #define SM_BUF 10
 
@@ -44,9 +44,10 @@ int main(int argc, char** argv)
     numbers_str[strlen(numbers_str) - 1] = '\0';
     numbers_curs = numbers_str;
     int i = 0;
+	int rc;
     for(; i < size - 1; i++)
     {
-        sscanf(numbers_curs, "%LF", &(numbers[i].value));
+        rc = sscanf(numbers_curs, "%lf", &(numbers[i].value));
         numbers[i].idx = i + 1; 
         // skip scanned int
         while(*numbers_curs != ' ')
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
         }
     }
     // process the last element to omit if in the previous loop
-    sscanf(numbers_curs, "%LF", &(numbers[i].value));
+    sscanf(numbers_curs, "%lf", &(numbers[i].value));
     numbers[i].idx = i + 1; 
 
     // we don't need this string memory anymore
@@ -101,7 +102,7 @@ arr_output(void* el_arr_c, int size, enum OPTS opt)
     if (opt != STDOUT)
     {
        result = (char *) malloc(W1_T4_STR_LEN * sizeof(char));
-       sprintf(result, "[%LF %d] [%LF %d] [%LF %d]", el_arr[0].value, el_arr[0].idx,
+       sprintf(result, "[%lf %d] [%lf %d] [%lf %d]", el_arr[0].value, el_arr[0].idx,
             el_arr[size/2].value, el_arr[size/2].idx,
             el_arr[size-1].value, el_arr[size-1].idx ); 
     }
@@ -114,7 +115,7 @@ arr_output(void* el_arr_c, int size, enum OPTS opt)
         for(int i = 0; i < size; i++)
         {
     //        printf("arr_output() el[%d]:[%lld]\n", i, el_arr[i]);
-            el_len = sprintf(result_curs, "[%LF %d]", el_arr[i].value, el_arr[i].idx);
+            el_len = sprintf(result_curs, "[%lf %d]", el_arr[i].value, el_arr[i].idx);
             result_curs += el_len;
     //        *result_curs = ' '; 
         }
@@ -164,7 +165,7 @@ arr_sort(void* el_arr_c, int size)
          el_arr[size-1].idx);
     //printed_len = sprintf(result, "%d %d %d", 3, 4, 1);
     *(result + printed_len) = '\0';
-    printf("arr_sort result: [%s]\n", result);
+    //printf("arr_sort result: [%s]\n", result);
 
     return result;
 }
@@ -192,16 +193,16 @@ size_t getline_(char **lineptr, size_t *n, FILE *stream) {
         return -1;
     }
     if (bufptr == NULL) {
-        bufptr = malloc(128);
+        bufptr = malloc(BUF_LEN);
         if (bufptr == NULL) {
             return -1;
         }
-        size = 128;
+        size = BUF_LEN;
     }
     p = bufptr;
     while(c != EOF) {
         if ((p - bufptr) > (size - 1)) {
-            size = size + 128;
+            size = size + BUF_LEN;
             bufptr = realloc(bufptr, size);
             if (bufptr == NULL) {
                 return -1;
