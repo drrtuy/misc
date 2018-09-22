@@ -12,7 +12,7 @@
 #ifdef __unix__
 #define CONV "%lF"
 #define EXT_CONV "[%lF %d]"
-#elif
+#else
 #define CONV "%lf"
 #define EXT_CONV "[%lf %d]"
 #endif
@@ -114,7 +114,7 @@ arr_output(void* el_arr_c, int size, enum OPTS opt)
        sprintf(result, "[%lF %d] [%lF %d] [%lF %d]", el_arr[0].value, el_arr[0].idx,
             el_arr[size/2].value, el_arr[size/2].idx,
             el_arr[size-1].value, el_arr[size-1].idx ); 
-#elif
+#else
        sprintf(result, "[%lf %d] [%lf %d] [%lf %d]", el_arr[0].value, el_arr[0].idx,
             el_arr[size/2].value, el_arr[size/2].idx,
             el_arr[size-1].value, el_arr[size-1].idx ); 
