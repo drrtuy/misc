@@ -125,7 +125,7 @@ arr_sort(long long int* int_arr, int size, FILE* output)
     char* result = NULL;
     uint16_t lower_indices[100];
     uint16_t higher_indices[100];
-    uint8_t idx = 1; 
+    int idx = 0;
     result = (char *) malloc(BUF_LEN * sizeof(char));
     char* result_cursor = result;
     int it = 0, tmp, printed_len = 0, total_len = 0;
@@ -140,7 +140,8 @@ arr_sort(long long int* int_arr, int size, FILE* output)
             int_arr[it] = int_arr[it+1];
             int_arr[it+1] = tmp;
             it--;
-            lower_indices[idx++] = it + 2, higher_indices[idx] = it + 3;
+            lower_indices[idx] = it + 2;
+			higher_indices[idx++] = it + 3;
             if(idx == 62)
             {
                 printed_len = sprintf(result_cursor,
@@ -223,9 +224,29 @@ lower_indices[60], higher_indices[60], lower_indices[61], higher_indices[61]);
         
         //it_4_log = (it == i - 1) ? i + 1 : it + 2;
         //printf("it for logging: [%d]\n", it_4_log);
-        
     }
 
+	if ( total_len || idx )
+	{
+		if(idx)
+		{
+			for(int ite = 0; ite < idx; ite++) 
+			{
+				
+				printed_len = sprintf(result_cursor, "Swap elements at indices %d and %d.\n",
+					lower_indices[ite], higher_indices[ite]);
+					//printf("sort() %s\n", result_cursor);
+					result_cursor += printed_len;
+					//printf("sort() %s\n", result_cursor);
+			}
+		}
+		//printf("sort 2() %s\n", result);
+		*(result_cursor + 1) = '\0';
+		fputs(result, output);
+		result_cursor = result;
+		total_len = 0;
+	}
+	
     printed_len = sprintf(result, "No more swaps needed.\n"); 
     result[printed_len] = '\0';
     fputs(result, output);
