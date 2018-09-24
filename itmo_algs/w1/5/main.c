@@ -10,6 +10,7 @@ enum OPTS { STDOUT, STRING };
 
 char* arr_output(long long int* int_arr, int size, enum OPTS opt);
 char* arr_sort(long long int* int_arr, int size, FILE* output);
+uint8_t arr_is_sorted(long long int* int_arr, int size);
 
 int main(int argc, char* argv)
 {
@@ -129,6 +130,8 @@ arr_sort(long long int* int_arr, int size, FILE* output)
     result = (char *) malloc(BUF_LEN * sizeof(char));
     char* result_cursor = result;
     int it = 0, tmp, printed_len = 0, total_len = 0;
+	int it_4_log = 0;
+	uint8_t is_sorted = arr_is_sorted(int_arr, size);
 
     for(int i = 1; i < size; i++)
     {
@@ -140,9 +143,13 @@ arr_sort(long long int* int_arr, int size, FILE* output)
             int_arr[it] = int_arr[it+1];
             int_arr[it+1] = tmp;
             it--;
-            lower_indices[idx] = it + 2;
-			higher_indices[idx++] = it + 3;
-            if(idx == 62)
+			if (is_sorted == 0)
+			{
+				lower_indices[idx] = it + 2;
+				higher_indices[idx++] = it + 3;
+			}
+			
+            if(is_sorted == 0 && idx == 62)
             {
                 printed_len = sprintf(result_cursor,
                     "Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
@@ -213,7 +220,7 @@ lower_indices[60], higher_indices[60], lower_indices[61], higher_indices[61]);
                 idx = 0;
             }
 
-            if ( total_len + 2000 > BUF_LEN )
+            if ( is_sorted == 0 && total_len + 2000 > BUF_LEN )
             {
                 *(result_cursor + 1) = '\0';
                 fputs(result, output);
@@ -225,8 +232,29 @@ lower_indices[60], higher_indices[60], lower_indices[61], higher_indices[61]);
         //it_4_log = (it == i - 1) ? i + 1 : it + 2;
         //printf("it for logging: [%d]\n", it_4_log);
     }
+	
+	if ( is_sorted == 0 && total_len )
+	{
+		*(result_cursor + 1) = '\0';
+		fputs(result, output);
+		result_cursor = result;
+		total_len = 0;
+	}
+	//printf("arr_sort() is_sorted: [%d]\n", is_sorted);
+	if ( is_sorted == 1 )
+	{
+		result_cursor = result;
+		for(uint16_t iter = 0; iter < size/2; iter++)
+		{
+			//printf("arr_sort() is_sorted: [%d]\n", is_sorted);
+			result_cursor += sprintf(result_cursor, 
+					"Swap elements at indices %d and %d.\n", iter + 1, size - iter);
+		}
+		*(result_cursor + 1) = '\0';
+		fputs(result, output);
+	}
 
-	if ( total_len || idx )
+	if ( is_sorted == 0 && ( total_len || idx ) )
 	{
 		if(idx)
 		{
@@ -252,4 +280,18 @@ lower_indices[60], higher_indices[60], lower_indices[61], higher_indices[61]);
     fputs(result, output);
 
     return result;
+}
+
+uint8_t arr_is_sorted(long long int* int_arr, int size)
+{
+	uint8_t result = 1;
+	for(size--; size > 0; size--)
+	{
+		if(int_arr[size] > int_arr[size-1])
+		{
+			result = 0;
+			break;
+		}
+	}
+	return result;
 }
