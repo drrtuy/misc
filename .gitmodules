@@ -1,0 +1,3 @@
+[submodule "itmo_algs/edx-io"]
+	path = itmo_algs/edx-io
+	url = git@github.com:mbuzdalov/edx-io.git
