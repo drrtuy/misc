@@ -7,6 +7,7 @@
 
 #define BUF_LEN 2097152
 #define SM_BUF 60
+#define eprintf(level, args...) if ( debug >= level ) printf (args)
 
 typedef long long int lli;
 
@@ -17,6 +18,8 @@ char* arr_sort(lli* int_arr, int size, FILE* output);
 uint8_t arr_is_sorted(lli* int_arr, int size);
 lli* merge_sort(lli* arr, uint32_t b, uint32_t e);
 lli* merge(lli* a1, lli* a2, uint32_t l1, uint32_t l2);
+
+int debug = 0;
 
 int main(int argc, char* argv)
 {
@@ -29,6 +32,7 @@ int main(int argc, char* argv)
     if (!input || !output)
         return 1;
 
+    debug = argc - 1;
 
     char size_str[SM_BUF];
     int size = 0;
@@ -36,10 +40,7 @@ int main(int argc, char* argv)
     numbers_curs = fgets(size_str, SM_BUF, input);
     sscanf(size_str, "%d", &size); 
 
-    if ( argc > 1 )
-    {
-        printf("main() size: [%d]\n", size);
-    }
+    eprintf(1, "main() size: [%d]\n", size);
 
     char numbers_str[BUF_LEN];
     lli numbers[size];
@@ -63,15 +64,26 @@ int main(int argc, char* argv)
         }
     }
 
-    if(argc > 1)
+    if(debug)
+    {
         arr_output(numbers, size, STDOUT);
-    lli  tmp_arr[3] = { 5LL, 1LL, 4LL };
-    if(argc > 1)
+        arr_output(merge_sort(numbers, 1, size), size , STDOUT);
+    }
+    /*
+    lli tmp_arr[3] = { 5LL, 1LL, 4LL };
+    if(debug)
     {
         arr_output(tmp_arr, 3, STDOUT);
-        arr_output(merge_sort(tmp_arr, 0, 2), 3 , STDOUT);
+        arr_output(merge_sort(tmp_arr, 1, 3), 3 , STDOUT);
     }
-    //printf("size is %d\n", size);
+    
+    lli tmp_arr2[2] = { 5LL, 1LL };
+    if(debug)
+    {
+        arr_output(tmp_arr2, 2, STDOUT);
+        arr_output(merge_sort(tmp_arr2, 1, 2), 2 , STDOUT);
+    }*/
+    
     //log_string = arr_sort(numbers, size, output); 
     //sorted_arr_str = arr_output(numbers, size, STRING);
     //if(argc > 1)
@@ -217,47 +229,59 @@ arr_sort(lli* int_arr, int size, FILE* output)
 lli*
 merge(lli* a1, lli* a2, uint32_t l1, uint32_t l2)
 {
+    if (!l1 )
+        l1 = 1;
+    if (!l2 )
+        l2 = 1;
     lli* merge_result = calloc(l1 + l2, sizeof(lli));
 
-    printf("merge() l1 [%d]\tl2[%d]\n", l1, l2);
+    
+    eprintf(3, "merge() merge_result %p\n", merge_result);
+    eprintf(3, "merge() l1 [%d]\tl2[%d]\n", l1, l2);
 
     uint32_t i1 = 0, i2 = 0, res_it = 0;
     while ( i1 < l1 || i2 < l2 )
     {
         if ( i2 == l2 || ( i1 < l1 && a1[i1] <= a2[i2] ) )
         {
-            printf("merge() set from a1 merge_result[%d] = %d\n", res_it, a1[i1]);
+            eprintf(2, "merge() set from a1 merge_result[%d] = %d\n", res_it, a1[i1]);
             merge_result[res_it] = a1[i1], res_it++, i1++;
         }
         else
         {
-            printf("merge() set from a2 merge_result[%d] = %d\n", res_it, a2[i2]);
+            eprintf(2, "merge() set from a2 merge_result[%d] = %d\n", res_it, a2[i2]);
             merge_result[res_it] = a2[i2], res_it++, i2++;
         }
     }
 
+    eprintf(2, "merge() free a1: [%p]\ta2: [%p]\n", a1);
     if ( l1 > 1 )
-    {
-        free(a1), free(a2);
-    }
+        free(a1);
+    if ( l2 > 1 )
+        free(a2);   
 
     return merge_result;
 }
 
+//
+// b - index starting from 1
+// e - index with max = length(arr)
+// returns sorted array or a part of it
+//
 lli*
 merge_sort(lli* arr, uint32_t b, uint32_t e)
 {
-    printf("merge_sort() b [%d] e [%d]\n", b, e);
+    eprintf(2, "merge_sort() b [%d] e [%d]\n", b, e);
     if ( b == e )
     {
         return arr;
     }
         
-    uint32_t m = (e + 1) / 2;
-    printf("merge_sort() m [%d] \n", m);
+    uint32_t m = ( e + b ) / 2;
+    eprintf(2, "merge_sort() m [%d] \n", m);
     lli* a1 = merge_sort(arr, b, m);
-    lli* a2 = merge_sort(&arr[m + 1], m + 1, e);
-    lli* result = merge(a1, a2, ( m + 1 ) - b, e - m);
+    lli* a2 = merge_sort(&arr[m + 1 - b], m + 1, e);
+    lli* result = merge(a1, a2, m + 1 - b, e - m);
 
     return result;   
 }
