@@ -4,15 +4,45 @@
 #include <stdint.h>
 
 #define BUF_LEN 2097152
-#define SM_BUF 60
+#define SM_BUF 256
+
+char number_buffer_[SM_BUF];
 
 enum OPTS { STDOUT, STRING };
+
+char digit_tens_[] = {
+        48, 48, 48, 48, 48, 48, 48, 48, 48, 48,
+        49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
+        50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+        51, 51, 51, 51, 51, 51, 51, 51, 51, 51,
+        52, 52, 52, 52, 52, 52, 52, 52, 52, 52,
+        53, 53, 53, 53, 53, 53, 53, 53, 53, 53,
+        54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
+        55, 55, 55, 55, 55, 55, 55, 55, 55, 55,
+        56, 56, 56, 56, 56, 56, 56, 56, 56, 56,
+        57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
+};
+
+char digit_ones_[] = {
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+};
+
 
 char* arr_output(long long int* int_arr, int size, enum OPTS opt);
 char* arr_sort(long long int* int_arr, int size, FILE* output);
 uint8_t arr_is_sorted(long long int* int_arr, int size);
+int int_to_buffer_(unsigned value, int pos);
 
-int main(int argc, char* argv)
+int main(int argc, char** argv)
 {
     char* numbers_curs;
     char* log_string;
@@ -23,10 +53,11 @@ int main(int argc, char* argv)
     if (!input || !output)
         return 1;
 
-
+    number_buffer_[SM_BUF - 1] = '\0';
+    
     char size_str[SM_BUF];
     int size = 0;
-    int rc;
+    
     numbers_curs = fgets(size_str, SM_BUF, input);
     sscanf(size_str, "%d", &size); 
 
@@ -130,8 +161,9 @@ arr_sort(long long int* int_arr, int size, FILE* output)
     result = (char *) malloc(BUF_LEN * sizeof(char));
     char* result_cursor = result;
     int it = 0, tmp, printed_len = 0, total_len = 0;
-	int it_4_log = 0;
+
 	uint8_t is_sorted = arr_is_sorted(int_arr, size);
+    int pos = SM_BUF - 1;
 
     for(int i = 1; i < size; i++)
     {
@@ -145,102 +177,24 @@ arr_sort(long long int* int_arr, int size, FILE* output)
             it--;
 			if (is_sorted == 0)
 			{
-				lower_indices[idx] = it + 2;
-				higher_indices[idx++] = it + 3;
+                pos = SM_BUF - 1;
+                fputs("Swap elements at indices ", output);
+                pos = int_to_buffer_(it + 2, pos);
+                fputs(number_buffer_ + pos, output);
+                //fputc(' ', output);
+                fputs(" and ", output);
+                pos = int_to_buffer_(it + 3, SM_BUF - 1);
+                fputs(number_buffer_ + pos, output);
+                fputs(".\n", output);
+                /*printed_len = sprintf(result, "Swap elements at indices %d and %d.\n",
+                    it + 2, it + 3);
+                *(result + printed_len) = '\0';
+                fputs(result, output);*/
+                
 			}
-			
-            if(is_sorted == 0 && idx == 62)
-            {
-                printed_len = sprintf(result_cursor,
-                    "Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n\
-Swap elements at indices %d and %d.\nSwap elements at indices %d and %d.\n",
-lower_indices[0], higher_indices[0], lower_indices[1], higher_indices[1],
-lower_indices[2], higher_indices[2], lower_indices[3], higher_indices[3],
-lower_indices[4], higher_indices[4], lower_indices[5], higher_indices[5],
-lower_indices[6], higher_indices[6], lower_indices[7], higher_indices[7],
-lower_indices[8], higher_indices[8], lower_indices[9], higher_indices[9],
-lower_indices[10], higher_indices[10], lower_indices[11], higher_indices[11],
-lower_indices[12], higher_indices[12], lower_indices[13], higher_indices[13],
-lower_indices[14], higher_indices[14], lower_indices[15], higher_indices[15],
-lower_indices[16], higher_indices[16], lower_indices[17], higher_indices[17],
-lower_indices[18], higher_indices[18], lower_indices[19], higher_indices[19],
-lower_indices[20], higher_indices[20], lower_indices[21], higher_indices[21],
-lower_indices[22], higher_indices[22], lower_indices[23], higher_indices[23],
-lower_indices[24], higher_indices[24], lower_indices[25], higher_indices[25],
-lower_indices[26], higher_indices[26], lower_indices[27], higher_indices[27],
-lower_indices[28], higher_indices[28], lower_indices[29], higher_indices[29],
-lower_indices[30], higher_indices[30], lower_indices[31], higher_indices[31],
-lower_indices[32], higher_indices[32], lower_indices[33], higher_indices[33],
-lower_indices[34], higher_indices[34], lower_indices[35], higher_indices[35],
-lower_indices[36], higher_indices[36], lower_indices[37], higher_indices[37],
-lower_indices[38], higher_indices[38], lower_indices[39], higher_indices[39],
-lower_indices[40], higher_indices[40], lower_indices[41], higher_indices[41],
-lower_indices[42], higher_indices[42], lower_indices[43], higher_indices[43],
-lower_indices[44], higher_indices[44], lower_indices[45], higher_indices[45],
-lower_indices[46], higher_indices[46], lower_indices[47], higher_indices[47],
-lower_indices[48], higher_indices[48], lower_indices[49], higher_indices[49],
-lower_indices[50], higher_indices[50], lower_indices[51], higher_indices[51],
-lower_indices[52], higher_indices[52], lower_indices[53], higher_indices[53],
-lower_indices[54], higher_indices[54], lower_indices[55], higher_indices[55],
-lower_indices[56], higher_indices[56], lower_indices[57], higher_indices[57],
-lower_indices[58], higher_indices[58], lower_indices[59], higher_indices[59],
-lower_indices[60], higher_indices[60], lower_indices[61], higher_indices[61]);
-                result_cursor += printed_len;
-                total_len += printed_len;
-                printed_len = 0;
-                idx = 0;
-            }
-
-            if ( is_sorted == 0 && total_len + 2000 > BUF_LEN )
-            {
-                *(result_cursor + 1) = '\0';
-                fputs(result, output);
-                result_cursor = result;
-                total_len = 0;
-            }
         }
-        
-        //it_4_log = (it == i - 1) ? i + 1 : it + 2;
-        //printf("it for logging: [%d]\n", it_4_log);
     }
-	
-	if ( is_sorted == 0 && total_len )
-	{
-		*(result_cursor + 1) = '\0';
-		fputs(result, output);
-		result_cursor = result;
-		total_len = 0;
-	}
-	//printf("arr_sort() is_sorted: [%d]\n", is_sorted);
+
 	if ( is_sorted == 1 )
 	{
 		result_cursor = result;
@@ -254,30 +208,9 @@ lower_indices[60], higher_indices[60], lower_indices[61], higher_indices[61]);
 		fputs(result, output);
 	}
 
-	if ( is_sorted == 0 && ( total_len || idx ) )
-	{
-		if(idx)
-		{
-			for(int ite = 0; ite < idx; ite++) 
-			{
-				
-				printed_len = sprintf(result_cursor, "Swap elements at indices %d and %d.\n",
-					lower_indices[ite], higher_indices[ite]);
-					//printf("sort() %s\n", result_cursor);
-					result_cursor += printed_len;
-					//printf("sort() %s\n", result_cursor);
-			}
-		}
-		//printf("sort 2() %s\n", result);
-		*(result_cursor + 1) = '\0';
-		fputs(result, output);
-		result_cursor = result;
-		total_len = 0;
-	}
-	
-    printed_len = sprintf(result, "No more swaps needed.\n"); 
-    result[printed_len] = '\0';
-    fputs(result, output);
+    fputs("No more swaps needed.\n", output);
+    //result[printed_len] = '\0';
+    //fputs(result, output);
 
     return result;
 }
@@ -294,4 +227,25 @@ uint8_t arr_is_sorted(long long int* int_arr, int size)
 		}
 	}
 	return result;
+}
+
+int int_to_buffer_(unsigned value, int pos) 
+{
+    while (value >= 65536) {
+        unsigned q = value / 100;
+        unsigned r = value - ((q << 6) + (q << 5) + (q << 2));
+        value = q;
+        number_buffer_[--pos] = digit_ones_[r];
+        number_buffer_[--pos] = digit_tens_[r];
+    }
+    while (1) {
+        unsigned q = (value * 52429) >> (16 + 3);
+        unsigned r = value - ((q << 3) + (q << 1));
+        number_buffer_[--pos] = digit_ones_[r];
+        value = q;
+        if (value == 0) {
+            break;
+        }
+    }
+    return pos;
 }
