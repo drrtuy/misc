@@ -41,6 +41,7 @@ char* arr_output(long long int* int_arr, int size, enum OPTS opt);
 char* arr_sort(long long int* int_arr, int size, FILE* output);
 uint8_t arr_is_sorted(long long int* int_arr, int size);
 int int_to_buffer_(unsigned value, int pos);
+void qsort_(long long int* int_arr, int left, int right, FILE* output);
 
 int main(int argc, char** argv)
 {
@@ -64,8 +65,8 @@ int main(int argc, char** argv)
     //printf("size is %d\n", size);
 
     char numbers_str[BUF_LEN];
-    long long int numbers[4999];
-    memset((void *)numbers, 0, size * sizeof(long long int));
+    long long int numbers[size];
+    //memset((void *)numbers, 0, size * sizeof(long long int));
     //memset(numbers_str, 0x20, BUF_LEN);
 
     numbers_curs = fgets(numbers_str, BUF_LEN, input);
@@ -75,39 +76,22 @@ int main(int argc, char** argv)
     for(int i = 0; i < size; i++)
     {
         sscanf(numbers_curs, "%lld", &numbers[i]);
-        //printf("number %d: %lld\n", i, numbers[i]);
-        //printf("number_curs 0 [%s]\n", numbers_curs);
-        // skip scanned int
         while(*numbers_curs != ' ')
             numbers_curs++;
-        //printf("number_curs 1 [%s]\n", numbers_curs);
-        // skip a number of spaces
         while(*numbers_curs == ' ')
         {   
-            //printf("numbers_curs 1.5 [%s]\n", numbers_curs);
             numbers_curs++;
         }
-        //printf("number_curs 2 [%s]\n", numbers_curs);
     }
 
-    //printf("result %lld %lld %lld\n", numbers[3], numbers[8], numbers[9]);
- 
-    //if(argc > 1)
-    //    arr_output(numbers, size, STDOUT); 
-    //printf("size is %d\n", size);
-    log_string = arr_sort(numbers, size, output); 
+    qsort_(numbers, 0, size - 1, output); 
     sorted_arr_str = arr_output(numbers, size, STRING);
-    //if(argc > 1)
-    //    arr_output(numbers, size, STDOUT);
-    
-    //fputs(log_string, output);
-    //fputs("\n", output);
 
     fputs(sorted_arr_str, output);
     fputs("\n", output);
 
-    free(log_string);
-    free(sorted_arr_str);
+//    free(log_string);
+//    free(sorted_arr_str);
 
     fclose(input);
     fclose(output);
@@ -150,7 +134,7 @@ arr_output(long long int* int_arr, int size, enum OPTS opt)
     return arr_string;
 }
 
-char*
+/*char*
 arr_sort(long long int* int_arr, int size, FILE* output)
 {
     //printf("size is %d\n", size);
@@ -186,10 +170,10 @@ arr_sort(long long int* int_arr, int size, FILE* output)
                 pos = int_to_buffer_(it + 3, SM_BUF - 1);
                 fputs(number_buffer_ + pos, output);
                 fputs(".\n", output);
-                /*printed_len = sprintf(result, "Swap elements at indices %d and %d.\n",
-                    it + 2, it + 3);
-                *(result + printed_len) = '\0';
-                fputs(result, output);*/
+                //printed_len = sprintf(result, "Swap elements at indices %d and %d.\n",
+                //    it + 2, it + 3);
+                //*(result + printed_len) = '\0';
+                //fputs(result, output);
                 
 			}
         }
@@ -213,6 +197,57 @@ arr_sort(long long int* int_arr, int size, FILE* output)
     //fputs(result, output);
 
     return result;
+}*/
+
+void 
+qsort_(long long int* int_arr, int left, int right, FILE* output)
+{
+    int i = left, j = right, buf;
+    int pos;
+    //long long int key = ( int_arr[(left + right - 2) / 2] + 
+    //    int_arr[left] + int_arr[right] ) / 3;
+    long long int key = int_arr[(left + right) / 2];
+    //printf("qsort_() left [%d] right [%d] key [%lld]\n", left, right, key);
+    do
+    {
+        while ( int_arr[i] < key )
+            i++;
+        while ( key < int_arr[j] )
+            j--;
+        //printf("qsort_() i [%d] j [%d]\n", i, j);
+        if ( i <= j )
+        {
+            //printf("qsort_() swap\n");
+            buf = int_arr[i];
+            int_arr[i] = int_arr[j];
+            int_arr[j] = buf;
+            fputs("Swap elements at indices ", output);
+            if ( i > j )
+            {
+                pos = int_to_buffer_(j , 255);
+                fputs(number_buffer_ + pos, output);
+                fputs(" and ", output);
+                pos = int_to_buffer_(i, 255);
+                fputs(number_buffer_ + pos, output);
+                fputs(".\n", output);
+            }
+            else
+            {
+                pos = int_to_buffer_(i , 255);
+                fputs(number_buffer_ + pos, output);
+                fputs(" and ", output);
+                pos = int_to_buffer_(j, 255);
+                fputs(number_buffer_ + pos, output);
+                fputs(".\n", output);
+            }
+            i++, j--;
+        }
+    } while ( i < j );
+    
+    if ( left < j )
+        qsort_(int_arr, left, j, output);
+    if ( i < right )
+        qsort_(int_arr, i, right, output);
 }
 
 uint8_t arr_is_sorted(long long int* int_arr, int size)
