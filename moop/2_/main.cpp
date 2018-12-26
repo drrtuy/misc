@@ -54,13 +54,14 @@ int main(int argc, char **argv)
         getline(input, highText);
         getline(input, numPointsText);
     }
-    //string funcText[] = "2*x";
+    //string funcText[] = { "2*x" };
     double low = strtod(lowText.c_str(), NULL);
     double high = strtod(highText.c_str(), NULL);
     double numPoints = strtod(numPointsText.c_str(), NULL); 
     double integral = 0.0;
 
-    cout << low << " " << high << " " << numPoints << endl;
+    cout << "funcText " << funcText << endl;
+    cout << " " << low << " " << high << " " << numPoints << endl;
 
     le_init();
     int cookie = le_loadexpr(funcText.c_str());
@@ -70,7 +71,9 @@ int main(int argc, char **argv)
     for(int i = 0; i < numPoints; i++)
     {
         high += step;
-        cout << "low " << low << " high " << high << " step " << step << " int " << ( f(high, cookie) + f(low, cookie) ) / 2 * step << endl; 
+        //cout << "low " << low << " high " << high << " step " << step
+        //<< " int " << ( f(high, cookie) + f(low, cookie) ) / 2 * step
+        // << endl; 
         integral += ( f(high, cookie) + f(low, cookie) ) / 2 * step;
         low += step;
     }
