@@ -73,7 +73,7 @@ void BFSWrapper(std::istream& in, std::ostream& out)
         std::sort(row.begin(), row.end(), std::less<DataType>());
 
     std::queue<DataType> vertexQueue;
-    // DFS
+    // BFS
     vertexQueue.push(startingVertex);
     while (!vertexQueue.empty())
     {

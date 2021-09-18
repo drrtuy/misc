@@ -4,6 +4,9 @@
 #include <sstream>
 #include <unordered_map>
 
+// Задача решается созданием trie из списка данных шаблонов и последующего прохода
+// по исходной строке. В строке ищем шаблон максимальной длины из данных.
+
 void trieSearchWrapper(std::istream& in, std::ostream& out);
 
 void trieSearchTest(std::vector<std::string>& input, std::string& expected)
@@ -40,6 +43,12 @@ void trieSearchTestWrapper()
     expected.clear();
 
     input = { "sscevscescescscsscevscevscesscsc\n4\nsce\ns\nscev\nsc\n" };
+    expected = "YES\n";
+    trieSearchTest(input, expected);
+    input.clear();
+    expected.clear();
+
+    input = { "wwwfc3\nc\nw\nww\nwwf\n" };
     expected = "YES\n";
     trieSearchTest(input, expected);
     input.clear();
@@ -106,6 +115,7 @@ void trieSearchWrapper(std::istream& in, std::ostream& out)
     TrieNode root;
     NeedleType needle;
     in >> tmp;
+    // Строим trie
     for (size_t i = 0; i < tmp; ++i)
     {
         in >> needle;
@@ -113,30 +123,47 @@ void trieSearchWrapper(std::istream& in, std::ostream& out)
     }
 
     bool needleMatchesSoFar = true;
+    bool foundAtLeastOne = false;
     // алгоритм поиска в trie
+    // Ищем совпадающий needle максимальной длины.
     for (size_t i = 0; i < heap.size();)
     {
+        foundAtLeastOne = false;
         auto currentNode = &root;
         size_t offset = 0;
+        std::vector<DataType> foundTerminalPositions;
         while (needleMatchesSoFar && (i + offset) < heap.size())
         {
+            std::cout << "trying i " << i << " i+offset " << (int)i+offset-1 << " " << std::string(heap, i, offset) << "\n";
             auto symbol = heap[i + offset];
             currentNode = currentNode->jump(symbol);
-            // добавить структуру для сохранения найденного шаблона максимальной длины
             if (currentNode != nullptr)
             {
                 ++offset;
                 if (currentNode->isTerminal())
                 {
-                    std::cout << "isTerminal i " << i << " i + offset " << i + offset - 1 << "\n";
-                    if (!currentNode->hasJumpTable())
+                    foundAtLeastOne = true;
+                    foundTerminalPositions.push_back(offset);
+                    std::cout << "isTerminal i " << i << " i+offset " << (int)i+offset-1 << " " << std::string(heap, i, offset) << "\n";
+                    if (!currentNode->hasJumpTable()) // Это leaf trie - досрочно выходим из inner loop.
+                    {
+                        std::cout << "isFinalTerminal i " << i << " i+offset " << (int)i+offset-1 << " " << std::string(heap, i, offset) << "\n";
                         break;
+                    }
                 }
             }
             else
             {
-                std::cout << "failed pattern search in trie  i " << i << " i + offset " << i + offset - 1 << "\n";
-                needleMatchesSoFar = false;
+                if (!foundAtLeastOne)
+                {
+                    std::cout << "failed pattern search in trie i " << i << " i+offset " << (int)i+offset-1 << " " << std::string(heap, i, offset) << "\n";
+                    needleMatchesSoFar = false; // Не найден ни  один шаблон и нет перехода по симвволу в trie.
+                }
+                else
+                {
+                    std::cout << "fallback to the prev result in trie i " << i << " i+offset " << (int)i+offset-1 << " " << std::string(heap, i, offset) << "\n";
+                    break; // Нет перехода по символу, но было найдено совпадение меньшей длины. Прерываем inner loop.
+                }
             }
         }
         i += offset;
