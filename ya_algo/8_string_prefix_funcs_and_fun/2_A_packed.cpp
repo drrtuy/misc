@@ -2,196 +2,153 @@
 #include <vector>
 #include <cassert>
 #include <sstream>
+#include <algorithm>
+#include <cctype>
+#include <stack>
 
-void trieSearchWrapper(std::istream& in, std::ostream& out);
+void packedStringCmpWrapper(std::istream& in, std::ostream& out);
 
-void trieSearchTest(std::vector<std::string>& input, std::string& expected)
+void packedStringCmpTest(std::vector<std::string>& input, std::string& expected)
 {
     std::stringstream in;
     std::stringstream ss;
     for (auto& e: input)
         in << e;
-    trieSearchWrapper(in, ss);
+    packedStringCmpWrapper(in, ss);
     std::string out = ss.str();
     std::cout << out;
     assert(out == expected);
 }
 
 using TestInputType = std::vector<std::string>;
-void trieSearchTestWrapper()
+void packedStringCmpTestWrapper()
 {
-    TestInputType input = { "9\n3 9 1 2 5 10 9 1 7\n2\n4 10\n",};
-    std::string expected = "1 8 \n";
-    trieSearchTest(input, expected);
+    TestInputType input = { "3\n2[a]2[ab]\n3[a]2[r2[t]]\na2[aa3[b]]\n",};
+    std::string expected = "aaa\n";
+    packedStringCmpTest(input, expected);
     input.clear();
     expected.clear();
 
-    input = { "5\n1 2 3 4 5\n3\n10 11 12\n" };
-    expected = "1 2 3 \n";
-    trieSearchTest(input, expected);
-    input.clear();
-    expected.clear();
-
-    input = { "50\n352 153 127 830 665 764 309 306 127 830 665 764 309 584 478 42 745 580 679 224 927 762 861 406 148 160 863 698 797 342 571 65 768 603 702 247 950 785 884 429 422 63 766 601 700 245 948 783 882 427\n5\n83 786 621 720 265\n" };
-    expected = "3 9 16 20 26 32 36 42 46 \n";
-    trieSearchTest(input, expected);
+    input = { "3\nabacabaca\n2[abac]a\n3[aba]\n" };
+    expected = "aba\n";
+    packedStringCmpTest(input, expected);
     input.clear();
     expected.clear();
 }
 
-class TrieNode;
-using DataType = uint32_t;
-using JumpKey = DataType;
-using HeapType = std::vector<DataType>;
-using NeedleType = HeapType;
-using NeedlesVector = std::vector<NeedleType>;
-using OffsetType = int32_t;
-using OffsetsVector = std::vector<OffsetType>;
+using WordType = std::string;
+using DictType = std::vector<WordType>;
+using SymbType = char;
 
-void trieSearchWrapper(std::istream& in, std::ostream& out)
+// Оставил в public только то, что надо.
+class PackedWordDecompressorHelper: private std::stack<SymbType>
 {
-    size_t n, m;
-    DataType tmp, tmpPrev;
-    in >> n;
-    OffsetsVector heap;
-    heap.reserve(n);
-    in >> tmpPrev;
-    for (size_t i = 1; i < n; ++i)
+  public:
+    using std::stack<SymbType>::top;
+    using std::stack<SymbType>::pop;
+    using std::stack<SymbType>::push;
+    using std::stack<SymbType>::empty;
+    
+    const SymbType popTop()
     {
-        in >> tmp;
-        heap.push_back((OffsetType)(tmp - tmpPrev));
-        tmpPrev = tmp;
+        const SymbType topElement = top();
+        pop();
+        return topElement;
     }
 
-    in >> m;
-    OffsetsVector needle;
-    needle.reserve(m);
-    in >> tmpPrev;
-    for (size_t i = 1; i < m; ++i)
+    void pushWord(const WordType& word)
     {
-        in >> tmp;
-        needle.push_back((OffsetType)(tmp - tmpPrev));
-        tmpPrev = tmp;
+        for(auto el: word)
+            push(el);
     }
-    size_t patternSize = needle.size();
-    needle.push_back(0x7FFFFFFF);
-/*
-    std::cout << "needle ";
-    for (auto el: needle)
-        std::cout << el << " ";
-    std::cout << "\n";
-*/
-    heap.insert(heap.begin(), needle.begin(), needle.end());
-/*
-    std::cout << "heap ";
-    for (auto el: heap)
-        std::cout << el << " ";
-    std::cout << "\n";
-*/
-
-    std::vector<size_t> prefix(heap.size(), 0);
-    size_t k = 0, prevP = 0;
-    std::vector<size_t> results;
-    for (size_t i = 1; i < heap.size(); ++i)
+    
+    WordType getDecompressedWord()
     {
-        k = prevP;
-        while (k > 0 && heap[k] != heap[i])
-            k = prefix[k-1];
-        if (heap[k] == heap[i])
-            k += 1;
-        if (i < patternSize)
-            prefix[i] = k;
-        prevP = k;
-        if (k == patternSize)
+        WordType result;
+        result.reserve(size());
+        while(!empty())
+            result.insert(result.begin(), popTop());
+        return result;
+    }
+};
+
+
+WordType decompress(const WordType& compressedString)
+{
+    PackedWordDecompressorHelper helper;
+    size_t multiplier;
+    for (auto symb : compressedString)
+    {
+        //std::cout << "dec reading char from input str " << symb << "\n";
+        if (symb == ']')
         {
-            results.push_back(i - 2 * patternSize + 1); 
+            //std::cout << "dec read ] " << symb << "\n";
+            WordType multiSubWord;
+            WordType numberAsStr;
+            char subSymb = helper.popTop();
+            while (subSymb != '[')
+            {
+                multiSubWord.insert(multiSubWord.begin(), subSymb);
+                subSymb = helper.popTop();
+            }
+            //std::cout << "dec read [" << multiSubWord << "]" << "\n";
+            subSymb = helper.top();
+            while (std::isdigit(subSymb))
+            {
+                numberAsStr.insert(numberAsStr.begin(), subSymb);
+                helper.pop();
+                if (helper.empty())
+                    break;
+                subSymb = helper.top();
+            }
+
+            //std::cout << "dec read numberAsStr " << numberAsStr << "\n";
+            multiplier = std::stoi(numberAsStr);
+            //std::cout << "dec read multiplier " << multiplier << "\n";
+
+            for (size_t i = 0; i < multiplier; ++i)
+                helper.pushWord(multiSubWord);
         }
+        else
+            helper.push(symb);
     }
-/*
-    std::cout << "prefix \n";
-    for (auto el : prefix)
-        std::cout << el << " ";
+    std::string res = helper.getDecompressedWord();
+    //std::cout << "decompr result " << res << "\n";
+    return res;
+}
 
+// Расстояние общей части для двух пар итераторов.
+// Попробовать string_view, если не хватит времени.
+template<class I> auto commonPartLength(I abegin, I aend, I bbegin, I bend)
+{
+    return std::distance(abegin, std::mismatch(abegin, aend, bbegin, bend).first);
+} 
 
-    std::cout << "result \n";
-    for (auto el : results)
-        std::cout << el << " ";
-*/
-    for (auto el: results)
-        out << el << " ";
-    out << "\n";
-/*
-    size_t n, m;
-    DataType tmp, tmpPrev;
+WordType pickMinPrefix(const WordType& x, const WordType& y)
+{
+    auto commonPrefixLength = commonPartLength(x.begin(), x.end(), y.begin(), y.end());
+    return std::string(x, 0, commonPrefixLength);
+}
+
+void packedStringCmpWrapper(std::istream& in, std::ostream& out)
+{
+    size_t n;
     in >> n;
-    std::stringstream ss;
-    ss << "#";
-    in >> tmpPrev;
-    for (size_t i = 1; i < n; ++i)
+    WordType tmp;
+    DictType dict;
+    dict.reserve(n);
+    for (size_t i = 0; i < n; ++i)
     {
         in >> tmp;
-        if (i + 1 < n)
-            ss << (OffsetType)(tmp - tmpPrev) << " ";
-        else
-            ss << (OffsetType)(tmp - tmpPrev);
-        tmpPrev = tmp;
+        dict.push_back(std::move(decompress(tmp)));
     }
 
-    std::string heapString = std::move(ss.str());
-    ss.str("");
+    std::sort(dict.begin(), dict.end(), std::less<WordType>());
+    WordType minPrefix(std::move(dict[0]));
+    for (size_t i = 1; i < dict.size(); ++i)
+        minPrefix = std::move(pickMinPrefix(minPrefix, dict[i]));    
 
-    in >> m;
-    in >> tmpPrev;
-    for (size_t i = 1; i < m; ++i)
-    {
-        in >> tmp;
-        if (i + 1 < m)
-            ss << (OffsetType)(tmp - tmpPrev) << " ";
-        else
-            ss << (OffsetType)(tmp - tmpPrev);
-        tmpPrev = tmp;
-    }
-
-    std::string needleString = std::move(ss.str());
-    size_t patternLength = needleString.length();
-
-    std::cout << "heap " << heapString << "\n";
-    std::cout << "needle " << needleString << "\n";
-
-    needleString += heapString;
-
-    std::cout << "combination " << needleString << "\n"; 
-
-    std::vector<size_t> prefix(needleString.length(), 0);
-    size_t k = 0;
-    std::vector<size_t> results;
-    for (size_t i = 1; i < needleString.length(); ++i)
-    {
-        k = prefix[i-1];
-        while (k > 0 && needleString[k] != needleString[i])
-            k = prefix[k-1];
-        if (needleString[k] == needleString[i])
-            k += 1;
-        if (i < needleString.length())
-            prefix[i] = k;
-        if (k == patternLength)
-        {
-            std::cout << "k " << k << "\n";
-            results.push_back(i - 2 * patternLength); 
-        }
-    }
-
-    std::cout << "prefix \n";
-    for (auto el : prefix)
-        std::cout << el << " ";
-
-
-    std::cout << "result \n";
-    for (auto el : results)
-        std::cout << el << " ";
-
-    out << "\n";
-*/
+    out << minPrefix << "\n";
 }
 
 int main(int argc, char** argv)
@@ -200,8 +157,8 @@ int main(int argc, char** argv)
     std::cin.tie(NULL);
     // put any argument to follow unit testing path
     if (argc > 1)
-        trieSearchTestWrapper();
+        packedStringCmpTestWrapper();
     else
-        trieSearchWrapper(std::cin, std::cout);
+        packedStringCmpWrapper(std::cin, std::cout);
     std::cout << "\n";
 }
