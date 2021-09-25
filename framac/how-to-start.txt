@@ -1,0 +1,4 @@
+cont must have env DISPLAY=:0; volume /tmp/.X11-unix:/tmp/.X11-unix
+execute xhost +
+run app
+xhost -
