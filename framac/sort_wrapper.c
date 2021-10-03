@@ -47,8 +47,8 @@ void oddeven_rl(int *arr, int n) {
           @ loop invariant isOdd(n-1) ==> isOdd(i);
           @ loop invariant isEven(n-1) ==> isEven(i);
           @ loop invariant -1 <= i && i <= n-1;
-          @ loop invariant -1 < i < n-1 && isOdd(i) ? pairsAreSortedAtOddPositions(arr, i + 2, n-1) : \true;
-          @ loop invariant 0 < i < n-1 && isEven(i) ? pairsAreSortedAtEvenPositions(arr, i + 2, n-1) : \true;
+          @ loop invariant -1 < i < n-1 && isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i + 2, n-1);
+          @ loop invariant 0 < i < n-1 && isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i + 2, n-1);
           @ loop invariant 0 <= cnt;
           @ loop assigns arr[0..n-1], tmp, cnt;
           @ loop variant i;
@@ -65,17 +65,23 @@ void oddeven_rl(int *arr, int n) {
                 //@ assert arr[i-1] == tmp && arr[i-1] <= arr[i];
                 ++cnt;
 
-                //@assert isOdd(i) ? pairsAreSortedAtOddPositions(arr, i, n-1) : \true;
-                //@assert isEven(i) ? pairsAreSortedAtEvenPositions(arr, i, n-1) : \true;
+                //@assert isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i, n-1);
+                //@assert isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i, n-1);
                 //@assert cnt == \at(cnt, L1) + 1;
             }
             //@assert 0 < i <= n-1;
             //@assert 0 <= \at(cnt, L1) <= cnt <= n - 1;
             //@assert arr[i-1] <= arr[i];
-            //@assert isOdd(i) ? pairsAreSortedAtOddPositions(arr, i, n-1) : \true;
-            //@assert isEven(i) ? pairsAreSortedAtEvenPositions(arr, i, n-1) : \true;
+            //@assert isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i, n-1);
+            //@assert isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i, n-1);
         }
         //@assert 0 <= cnt <= n;
+        //@assert 0 <= n <= INT_MAX;
+        //@assert isOdd(n-1) <==> i == -1;
+        //@assert isEven(n-1) <==> i == 0;
+        //@assert -1 < i < n-1 && isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i+2, n-1);
+        //@assert 0 < i < n-1 && isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i+2, n-1);
+        //@assert n == 1 ==> isSorted(arr, 0, 0);
     }
 }
 
