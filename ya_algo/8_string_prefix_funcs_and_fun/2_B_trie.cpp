@@ -1,13 +1,18 @@
+// 53784171
 #include <iostream>
 #include <vector>
 #include <cassert>
 #include <sstream>
 #include <unordered_map>
-#include <deque>
-#include <algorithm>
 
-// Задача решается созданием trie из списка данных шаблонов и последующего прохода
-// по исходной строке. В строке ищем шаблон максимальной длины из данных.
+// Для решения используется одномерная динамика + trie. В dp массив bool,
+// указывающих можно ли достигнуть символа проверяемой строки. База динамики - dp[0] = true.
+// Индукция dp[i] = isTerminal(i + offset) ? true : false.
+// Проходим по символам проверяемой строки, взводим bool в dp[i], если символ можно достигнуть и он
+// терминальный в trie. В dp.back() получаем ответ можно ли разобрать строку на шаблоны или нет.
+// Сложность по времени O(len(пров. строка) + sum(len(шаблон_i)), где i - номер шаблона.
+// Сложность по памяти в худшем случае O(len(пров. строка) + len(массива шаблонов) * размер алфавита.
+// в среднем меньше из-за совпадения символов в шаблонах.
 
 void trieSearchWrapper(std::istream& in, std::ostream& out);
 
@@ -49,19 +54,6 @@ void trieSearchTestWrapper()
     trieSearchTest(input, expected);
     input.clear();
     expected.clear();
-
-    input = { "wwwfc\n3\nw\nww\nwwfc\n" };
-    expected = "YES\n";
-    trieSearchTest(input, expected);
-    input.clear();
-    expected.clear();
-
-    input = { "sepsepdsepsepdsessepdsesepseps\n4\ns\nse\nsepd\nsep\n" };
-    expected = "YES\n";
-    trieSearchTest(input, expected);
-    input.clear();
-    expected.clear();
-
 }
 
 class TrieNode;
@@ -70,9 +62,7 @@ using JumpKey = char;
 using JumpType = std::unordered_map<JumpKey, TrieNode*, std::hash<JumpKey>>;
 using HeapType = std::string;
 using NeedleType = HeapType;
-using NeedlesVector = std::vector<NeedleType>;
-using FallbackDequeType = std::deque<DataType>;
-constexpr const DataType dummyOblomingoIndex = std::numeric_limits<DataType>::max();
+using DynamicType = std::vector<bool>;
 
 class TrieNode
 {
@@ -112,229 +102,44 @@ class TrieNode
         return jumps.size() > 0;
     }
 
-    HeapType stringifyJumpTable() const
-    {
-        HeapType jumpsString("jump table ");
-        for (auto& [k, v]: jumps)
-        {
-            jumpsString.push_back(k);
-            jumpsString.append(" ");
-        }
-        return jumpsString;
-    }
-
  private:
     bool mIsTerminal;
     JumpType jumps;
 };
 
-bool seychasNeOblomingo(DataType oblomingoIndex, DataType currentPos)
-{
-    if (oblomingoIndex != dummyOblomingoIndex)
-        return currentPos > oblomingoIndex;
-    return true;
-}
-
 void trieSearchWrapper(std::istream& in, std::ostream& out)
 {
     HeapType heap;
     in >> heap;
-    reverse(heap.begin(), heap.end());
     DataType tmp;
+    DynamicType dp(heap.length() + 1, false);
+    dp[0] = true;
 
     TrieNode root;
     NeedleType needle;
     in >> tmp;
-    // Строим trie
     for (size_t i = 0; i < tmp; ++i)
     {
         in >> needle;
-        reverse(needle.begin(), needle.end());
         root.addNeedle(needle);
     }
 
-    bool needleMatchesSoFar = true;
-    bool foundAtLeastOne = false;
-    FallbackDequeType fallbackDeque;
-    DataType oblomingoIndex = dummyOblomingoIndex;
     // алгоритм поиска в trie
-    // Ищем совпадающий needle максимальной длины.
-    for (size_t i = 0; i < heap.size();)
+    for (size_t i = 0; i < heap.size(); ++i)
     {
-        if (seychasNeOblomingo(oblomingoIndex, i))
-        {
-            std::cout << " reseting oblomingoPoint " << "\n";
-            oblomingoIndex = dummyOblomingoIndex;
-            //while(!fallbackDeque.empty())
-            //    fallbackDeque.pop_back();
-        }
-        bool lookAheadStarted = false;
-      resetSearch:
-        foundAtLeastOne = false;
+        if (!dp[i])
+            continue;
         auto currentNode = &root;
         size_t offset = 0;
-        while (needleMatchesSoFar && (i + offset) < heap.size())
+        while (currentNode != nullptr && (i + offset) < heap.size())
         {
-            size_t currentPos = i + offset;
-            auto symbol = heap[i + offset];
-            std::cout << "trying i " << i << " currentPos " << currentPos << " symbol " << symbol << " i+offset " << currentPos << " " << std::string(heap, i, offset) << "\n";
+            auto symbol = heap[i + offset++];
             currentNode = currentNode->jump(symbol);
-            if (currentNode != nullptr)
-            {
-                std::cout << currentNode->stringifyJumpTable() << "\n";
-                ++offset;
-                if (currentNode->isTerminal())
-                {
-                    foundAtLeastOne = true;
-                    if (oblomingoIndex == dummyOblomingoIndex)
-                    {
-                        std::cout << "pushing i + offset " << i + offset << "\n";
-                        fallbackDeque.push_back(i + offset);
-                    }
-                    else if (!lookAheadStarted && oblomingoIndex == currentPos)
-                    {
-                        lookAheadStarted = true;
-                        std::cout << "trying to lookahead after a single terminal symbol\n";
-                        if (!currentNode->hasJumpTable())
-                        {
-                            if ((i + offset) == heap.size()) // В строке нет символов - успешно разобрали строку.
-                                break;
-                            std::cout << "reset try new lookahead i " << i << " currentPos " << currentPos << " " << std::string(heap, i, offset) << "\n";
-                            auto nextSymbol = heap[i + offset];
-                            size_t tempOffset = 0;
-                            auto tempCurrentNode = root.jump(nextSymbol);
-                            while(tempCurrentNode != nullptr && !tempCurrentNode->isTerminal() && (i + offset + tempOffset < heap.size()))
-                            {
-                                ++tempOffset;
-                                nextSymbol = heap[i + offset + tempOffset];
-                                tempCurrentNode = tempCurrentNode->jump(nextSymbol);
-                            }
-                            if (tempCurrentNode == nullptr || !tempCurrentNode->isTerminal() || (i + offset + tempOffset >= heap.size()))
-                            {
-                                if (!fallbackDeque.empty())
-                                {
-                                    i = fallbackDeque.back();
-                                    std::cout << "pop a fallback " << i << "\n"; 
-                                    fallbackDeque.pop_back();
-                                    goto resetSearch;
-                                }
-                                std::cout << "there is no fallback left - exit here\n"; 
-                                needleMatchesSoFar = false;
-                                break;
-                            }
-                            oblomingoIndex = dummyOblomingoIndex;
-                            std::cout << "reseting having cross i + offset " << i + offset << " oblomingoIndex " << oblomingoIndex << "\n";
-                            goto resetSearch;
-                        }
-                        else
-                        {
-                            std::cout << "pushing additional fallback at i + offset << " << i + offset << "\n";
-                            fallbackDeque.push_front(i + offset);
-                            // продолжаем текущий проход
-                            if ((i + offset) == heap.size()) // В строке нет символов - успешно разобрали строку.
-                                break;
-                            std::cout << "reset try continue lookahead i " << i << " currentPos " << currentPos << " " << std::string(heap, i, offset) << "\n";
-                            auto nextSymbol = heap[i + offset];
-                            size_t tempOffset = 0;
-                            auto tempCurrentNode = currentNode->jump(nextSymbol);
-                            std::cout << "continue lookahead nextSymbol " << nextSymbol << " tempCurrentNode " << (uint64_t)tempCurrentNode;
-                            if (tempCurrentNode)
-                            {
-                                std::cout << " " << tempCurrentNode->stringifyJumpTable();
-                            }
-                            std::cout << "\n";
-                            while(tempCurrentNode != nullptr && !tempCurrentNode->isTerminal() && (i + offset + tempOffset < heap.size()))
-                            {
-                                ++tempOffset;
-                                nextSymbol = heap[i + offset + tempOffset];
-                                tempCurrentNode = tempCurrentNode->jump(nextSymbol);
-                                std::cout << "continue lookahead nextSymbol " << nextSymbol << " tempCurrentNode " << (uint64_t)tempCurrentNode;
-                                if (tempCurrentNode)
-                                {
-                                    std::cout << " " << tempCurrentNode->stringifyJumpTable();
-                                }
-                                std::cout << "\n";
-                            }
-                            if (tempCurrentNode == nullptr || !tempCurrentNode->isTerminal() || (i + offset + tempOffset >= heap.size()))
-                            {
-                                if (!fallbackDeque.empty())
-                                {
-                                    i = fallbackDeque.back();
-                                    std::cout << "pop a fallback " << i << "\n"; 
-                                    fallbackDeque.pop_back();
-                                    goto resetSearch;
-                                }
-                                std::cout << "there is no fallback left - exit here\n"; 
-                                needleMatchesSoFar = false;
-                                break;
-
-                                needleMatchesSoFar = false;
-                                break;
-                            }
-                            oblomingoIndex = dummyOblomingoIndex;
-                            std::cout << "reseting having cross i + offset " << i + offset << " oblomingoIndex " << oblomingoIndex << "\n";
-                            goto resetSearch;
-
-                        }
-                    }
-                    else if (oblomingoIndex < i + offset)
-                    {
-                        oblomingoIndex = dummyOblomingoIndex;
-                        lookAheadStarted = false;
-                        std::cout << "reseting having cross i + offset " << i + offset << " oblomingoIndex " << oblomingoIndex << "\n";
-                        goto resetSearch;
-                    }
-
-                    std::cout << "isTerminal i " << i << " i+offset " << currentPos << " " << std::string(heap, i, offset) << "\n";
-                    /*if (!currentNode->hasJumpTable()) // Это leaf trie - досрочно выходим из inner loop.
-                    {
-                        std::cout << "isFinalTerminal i " << i << " i+offset " << currentPos << " " << std::string(heap, i, offset) << "\n";
-                        break;
-                    }*/
-                }
-            }
-            else
-            {
-                if (!foundAtLeastOne && !lookAheadStarted)
-                {
-                    std::cout << "failed pattern search in trie i " << i << " i+offset " << (int)i+offset-1 << " " << std::string(heap, i, offset) << "\n";
-                    needleMatchesSoFar = false; // Не найден ни  один шаблон и нет перехода по симвволу в trie.
-                }
-                else
-                {
-                    if (fallbackDeque.size())
-                    {
-                        if (seychasNeOblomingo(oblomingoIndex, i))
-                        {
-/*
-                            if (currentPos == fallbackDeque.back())
-                            {
-                                std::cout << "fallback to the prev result in trie i " << i << " i+offset " << (int)i+offset-1 << " " << std::string(heap, i, offset) << "\n";
-                                break; // Нет перехода по символу, но было найдено совпадение меньшей длины. Прерываем inner loop.
-                            }
-*/
-                            oblomingoIndex = currentPos;
-                            std::cout << "set oblomingoIndex to " << oblomingoIndex << "\n";
-                        }
-                        std::cout << "falling back to " << fallbackDeque.back() << "\n";
-                        i = fallbackDeque.back();
-                        fallbackDeque.pop_back();
-                        std::cout << "fallback to the prev result in trie i " << i << "\n";
-                        goto resetSearch;
-                    }
-
-                    break; // Нет перехода по символу, но было найдено совпадение меньшей длины. Прерываем inner loop.
-                }
-            }
-        }
-        i += offset;
-        if (!needleMatchesSoFar || (i >= heap.size() && !currentNode->isTerminal()))
-        {
-            needleMatchesSoFar = false;
-            break;
+            if (currentNode != nullptr && currentNode->isTerminal())
+                dp[i + offset] = true;
         }
     }
-    if (needleMatchesSoFar)
+    if (dp.back())
         out << "YES\n";
     else
         out << "NO\n";
