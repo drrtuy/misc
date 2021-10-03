@@ -1,10 +1,17 @@
+// 53356706
 #include <iostream>
 #include <vector>
 #include <cassert>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
-#include <stack>
+#include <deque>
+
+// Алгоритм: разжимаем строки с помощью стэковой машины, складывая в массив.
+// Сортируем строки, берём самую короткую как исходный минимальный префикс,
+// проходим по расжатым строкам, примеряя текущий минимальный префикс к очередной строке.
+// Сложность по времени O(N * M), где N - кол-во слов, а M - длина самого короткого расжатого слова.
+// Сложность по памяти O(P), где P - суммарная длина слов после декомпрессии.
 
 void packedStringCmpWrapper(std::istream& in, std::ostream& out);
 
@@ -40,49 +47,50 @@ using WordType = std::string;
 using DictType = std::vector<WordType>;
 using SymbType = char;
 
-// Оставил в public только то, что надо.
-class PackedWordDecompressorHelper: private std::stack<SymbType>
+class PackedWordDecompressorHelper: private std::deque<SymbType>
 {
   public:
-    using std::stack<SymbType>::top;
-    using std::stack<SymbType>::pop;
-    using std::stack<SymbType>::push;
-    using std::stack<SymbType>::empty;
-    
+    using std::deque<SymbType>::back;
+    using std::deque<SymbType>::pop_back;
+    using std::deque<SymbType>::push_back;
+    using std::deque<SymbType>::pop_front;
+    using std::deque<SymbType>::empty;
+
     const SymbType popTop()
     {
-        const SymbType topElement = top();
-        pop();
+        const SymbType topElement = back();
+        pop_back();
         return topElement;
     }
 
     void pushWord(const WordType& word)
     {
         for(auto el: word)
-            push(el);
+            push_back(el);
     }
-    
+
     WordType getDecompressedWord()
     {
         WordType result;
         result.reserve(size());
         while(!empty())
-            result.insert(result.begin(), popTop());
+        {
+            result.push_back(front());
+            pop_front();
+        }
         return result;
     }
 };
 
-
+// Простой парсер со стековой машиной на базе dequeu.
 WordType decompress(const WordType& compressedString)
 {
     PackedWordDecompressorHelper helper;
     size_t multiplier;
     for (auto symb : compressedString)
     {
-        //std::cout << "dec reading char from input str " << symb << "\n";
         if (symb == ']')
         {
-            //std::cout << "dec read ] " << symb << "\n";
             WordType multiSubWord;
             WordType numberAsStr;
             char subSymb = helper.popTop();
@@ -91,39 +99,34 @@ WordType decompress(const WordType& compressedString)
                 multiSubWord.insert(multiSubWord.begin(), subSymb);
                 subSymb = helper.popTop();
             }
-            //std::cout << "dec read [" << multiSubWord << "]" << "\n";
-            subSymb = helper.top();
+            subSymb = helper.back();
             while (std::isdigit(subSymb))
             {
                 numberAsStr.insert(numberAsStr.begin(), subSymb);
-                helper.pop();
+                helper.pop_back();
                 if (helper.empty())
                     break;
-                subSymb = helper.top();
+                subSymb = helper.back();
             }
 
-            //std::cout << "dec read numberAsStr " << numberAsStr << "\n";
             multiplier = std::stoi(numberAsStr);
-            //std::cout << "dec read multiplier " << multiplier << "\n";
 
             for (size_t i = 0; i < multiplier; ++i)
                 helper.pushWord(multiSubWord);
         }
         else
-            helper.push(symb);
+            helper.push_back(symb);
     }
-    std::string res = helper.getDecompressedWord();
-    //std::cout << "decompr result " << res << "\n";
-    return res;
+    return helper.getDecompressedWord();
 }
 
 // Расстояние общей части для двух пар итераторов.
-// Попробовать string_view, если не хватит времени.
 template<class I> auto commonPartLength(I abegin, I aend, I bbegin, I bend)
 {
     return std::distance(abegin, std::mismatch(abegin, aend, bbegin, bend).first);
-} 
+}
 
+// Возвращаем общий префикс для двух строк.
 WordType pickMinPrefix(const WordType& x, const WordType& y)
 {
     auto commonPrefixLength = commonPartLength(x.begin(), x.end(), y.begin(), y.end());
@@ -143,10 +146,12 @@ void packedStringCmpWrapper(std::istream& in, std::ostream& out)
         dict.push_back(std::move(decompress(tmp)));
     }
 
+    // Можно обойтись без сортировки, выбрав минимальный элемент во время вставки,
+    // но код с запасом укладывается по времени.
     std::sort(dict.begin(), dict.end(), std::less<WordType>());
     WordType minPrefix(std::move(dict[0]));
     for (size_t i = 1; i < dict.size(); ++i)
-        minPrefix = std::move(pickMinPrefix(minPrefix, dict[i]));    
+        minPrefix = std::move(pickMinPrefix(minPrefix, dict[i]));
 
     out << minPrefix << "\n";
 }
