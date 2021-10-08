@@ -1,4 +1,4 @@
-// 53356706
+// 53964835
 #include <iostream>
 #include <vector>
 #include <cassert>
@@ -12,6 +12,9 @@
 // проходим по расжатым строкам, примеряя текущий минимальный префикс к очередной строке.
 // Сложность по времени O(N * M), где N - кол-во слов, а M - длина самого короткого расжатого слова.
 // Сложность по памяти O(P), где P - суммарная длина слов после декомпрессии.
+
+// От рекомендаций получил значительный профит: время исполнение в два раза меньше в пике,
+// а потребление памяти в 10.
 
 void packedStringCmpWrapper(std::istream& in, std::ostream& out);
 
@@ -44,7 +47,6 @@ void packedStringCmpTestWrapper()
 }
 
 using WordType = std::string;
-using DictType = std::vector<WordType>;
 using SymbType = char;
 
 class PackedWordDecompressorHelper: private std::deque<SymbType>
@@ -55,6 +57,7 @@ class PackedWordDecompressorHelper: private std::deque<SymbType>
     using std::deque<SymbType>::push_back;
     using std::deque<SymbType>::pop_front;
     using std::deque<SymbType>::empty;
+    using std::deque<SymbType>::size;
 
     const SymbType popTop()
     {
@@ -83,14 +86,17 @@ class PackedWordDecompressorHelper: private std::deque<SymbType>
 };
 
 // Простой парсер со стековой машиной на базе dequeu.
-WordType decompress(const WordType& compressedString)
+// Второй аргумент позволяет декодить не более чем resultWordMaxLength символов.
+WordType decompress(const WordType& compressedString, const size_t resultWordMaxLength)
 {
     PackedWordDecompressorHelper helper;
     size_t multiplier;
+    size_t parentesisCounter = 0;
     for (auto symb : compressedString)
     {
         if (symb == ']')
         {
+            --parentesisCounter;
             WordType multiSubWord;
             WordType numberAsStr;
             char subSymb = helper.popTop();
@@ -115,7 +121,13 @@ WordType decompress(const WordType& compressedString)
                 helper.pushWord(multiSubWord);
         }
         else
+        {
+            if (symb == '[')
+                ++parentesisCounter;
             helper.push_back(symb);
+        }
+        if (helper.size() > resultWordMaxLength && parentesisCounter == 0)
+            return helper.getDecompressedWord();
     }
     return helper.getDecompressedWord();
 }
@@ -138,20 +150,13 @@ void packedStringCmpWrapper(std::istream& in, std::ostream& out)
     size_t n;
     in >> n;
     WordType tmp;
-    DictType dict;
-    dict.reserve(n);
-    for (size_t i = 0; i < n; ++i)
+    in >> tmp;
+    WordType minPrefix(std::move(decompress(tmp, std::numeric_limits<size_t>::max())));
+    for (size_t i = 1; i < n; ++i)
     {
         in >> tmp;
-        dict.push_back(std::move(decompress(tmp)));
+        minPrefix = std::move(pickMinPrefix(minPrefix, decompress(tmp, minPrefix.length()))); 
     }
-
-    // Можно обойтись без сортировки, выбрав минимальный элемент во время вставки,
-    // но код с запасом укладывается по времени.
-    std::sort(dict.begin(), dict.end(), std::less<WordType>());
-    WordType minPrefix(std::move(dict[0]));
-    for (size_t i = 1; i < dict.size(); ++i)
-        minPrefix = std::move(pickMinPrefix(minPrefix, dict[i]));
 
     out << minPrefix << "\n";
 }

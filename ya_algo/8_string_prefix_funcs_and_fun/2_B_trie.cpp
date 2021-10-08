@@ -1,9 +1,9 @@
-// 53784171
+// 53950074
 #include <iostream>
 #include <vector>
 #include <cassert>
 #include <sstream>
-#include <unordered_map>
+#include <array>
 
 // Для решения используется одномерная динамика + trie. В dp массив bool,
 // указывающих можно ли достигнуть символа проверяемой строки. База динамики - dp[0] = true.
@@ -59,7 +59,10 @@ void trieSearchTestWrapper()
 class TrieNode;
 using DataType = uint32_t;
 using JumpKey = char;
-using JumpType = std::unordered_map<JumpKey, TrieNode*, std::hash<JumpKey>>;
+// Замена на вектор фиксированной длины привела к увеличению потребления памяти и снижению времени исполнения,
+// примерно в одинаковых пропорциях, так что здесь trade-off, где надо осознанно выбирать.
+constexpr size_t AlphaSize = 26;
+using JumpType = std::array<TrieNode*, AlphaSize>;
 using HeapType = std::string;
 using NeedleType = HeapType;
 using DynamicType = std::vector<bool>;
@@ -67,29 +70,35 @@ using DynamicType = std::vector<bool>;
 class TrieNode
 {
   public:
-    TrieNode() : mIsTerminal(false) {};
+    TrieNode() : mIsTerminal(false)
+    {
+        jumps.fill(nullptr);
+    };
     void addNeedle(const NeedleType& needle)
     {
         auto currentNode = this;
         for (auto symbol: needle)
         {
-            auto jump = currentNode->jumps.find(symbol);
-            if (jump == jumps.end())
+            assert('a' <= symbol && symbol <= 'z');
+            size_t jumpTableIdx = symbol - 'a';
+            auto jump = currentNode->jumps[jumpTableIdx];
+            if (jump == nullptr)
             {
                 auto node = new TrieNode();
-                currentNode->jumps.insert({symbol, node});
+                currentNode->jumps[jumpTableIdx] = node;
                 currentNode = node;
             }
             else
-                currentNode = jump->second;
+                currentNode = jump;
         }
         currentNode->mIsTerminal = true;
     }
 
     TrieNode* jump(const JumpKey symbol)
     {
-        auto jump = jumps.find(symbol);
-        return (jump == jumps.end()) ? nullptr : jump->second;
+        assert('a' <= symbol && symbol <= 'z');
+        size_t jumpTableIdx = symbol - 'a';
+        return jumps[jumpTableIdx];
     }
 
     bool isTerminal() const
