@@ -56,8 +56,8 @@ void oddeven_rl(int *arr, int n) {
           @ loop invariant isOdd(n-1) ==> isOdd(i);
           @ loop invariant isEven(n-1) ==> isEven(i);
           @ loop invariant -1 <= i <= n-1;
-          @ loop invariant -1 < i < n-1 && isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i + 2, n-1);
-          @ loop invariant 0 < i < n-1 && isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i + 2, n-1);
+          @ loop invariant -1 <= i < n-1 && isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i + 2, n-1);
+          @ loop invariant 0 <= i < n-1 && isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i + 2, n-1);
           @ loop invariant 0 <= cnt;
           @ loop assigns arr[0..n-1], tmp, cnt;
           @ loop variant i;
@@ -87,8 +87,10 @@ void oddeven_rl(int *arr, int n) {
         //@assert 0 <= n <= INT_MAX;
         //@assert isOdd(n-1) <==> i == -1;
         //@assert isEven(n-1) <==> i == 0;
-        //@assert -1 < i < n-1 && isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i+2, n-1);
-        //@assert 0 < i < n-1 && isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i+2, n-1);
+        //@assert -1 <= i < n-1 && isOdd(i) ==> pairsAreSortedAtOddPositions(arr, i+2, n-1);
+        //@assert -1 == i ==> pairsAreSortedAtOddPositions(arr, 1, n-1);
+        //@assert 0 <= i < n-1 && isEven(i) ==> pairsAreSortedAtEvenPositions(arr, i+2, n-1);
+        //@assert 0 == i ==> pairsAreSortedAtEvenPositions(arr, 2, n-1);
         //@assert n == 1 ==> isSorted(arr, 0, 0);
         //assert state != 1;
         
