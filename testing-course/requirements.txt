@@ -1,0 +1,3 @@
+coverage>=6.1.2
+mutmut>=2.2.0
+pytest>=6.2.5
