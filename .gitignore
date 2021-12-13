@@ -10,6 +10,8 @@ runable
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache
+.mutmut-cache
 
 # C extensions
 *.so
